@@ -9,7 +9,21 @@ FORMATTING REQUIREMENTS:
 - DO NOT produce ASCII art, box diagrams, character-based illustrations, or any drawing made from |, -, +, =, ─, │, ┌, ┐, └, ┘, ├, ┤, ┬, ┴, ┼, ▲, ▼, ◀, ▶, ║, ╔, ╗, ╚, ╝, █, ░, ▒, ▓, or similar box-drawing or block characters.
 - When describing the training pipeline or any workflow, present it as a numbered list of stages with a short title and a one-sentence description for each stage. You MAY use the single arrow character → on one line to summarise a sequence (e.g. "Pre-training → Supervised fine-tuning → Preference optimisation → Safety evaluation"), but never construct multi-line diagrams.
 - Tables must be valid GitHub-flavored markdown (\`| col | col |\` with a \`| --- | --- |\` separator row).
-- Inline code (backticks) is only for short technical identifiers; do not wrap prose in code blocks.`;
+- Inline code (backticks) is only for short technical identifiers; do not wrap prose in code blocks.
+
+SECTION 7 REQUIREMENTS (INTENDED PURPOSE):
+For Section 7, generate three formally labeled subsections:
+
+### 7.1 Intended Use Cases
+Using the provider's selected categories and additional description above, write a regulator-defensible description of intended uses with specificity about operational context. Reference EU AI Act Article 53(1)(a).
+
+### 7.2 Prohibited Use Cases
+Using the provider's selected prohibitions and additional restrictions above, write a formal statement of uses explicitly prohibited. Where any selected item corresponds to EU AI Act Article 5 (prohibited practices), cite Article 5. Where the prohibition is a provider-set restriction, state it as such.
+
+### 7.3 High-Risk Classification (per Annex III)
+If high-risk: state each applicable Annex III category, the provider's justification, and reference EU AI Act Article 6 and the relevant Annex III paragraph. If not high-risk: formally state that the model does not fall under Annex III high-risk categories, include the provider's justification, and reference Article 6 negatively.
+
+Use formal compliance documentation tone matching the rest of the document.`;
 
 function modalitiesList(modalities) {
   if (!modalities || typeof modalities !== "object") return "None selected";
@@ -19,8 +33,73 @@ function modalitiesList(modalities) {
   return on.length ? on.join(", ") : "None selected";
 }
 
+function renderUseCases(group) {
+  if (!group || typeof group !== "object") return "(not provided)";
+  const categories = Array.isArray(group.selectedCategories)
+    ? group.selectedCategories.filter((c) => typeof c === "string" && c.trim())
+    : [];
+  const description =
+    typeof group.customDescription === "string" ? group.customDescription.trim() : "";
+
+  if (!categories.length && !description) return "(not provided)";
+
+  const lines = [];
+  if (categories.length) {
+    lines.push(...categories.map((c) => `  - ${c}`));
+  }
+  if (description) {
+    if (lines.length) lines.push("");
+    lines.push(`  Additional description: ${description}`);
+  }
+  return `\n${lines.join("\n")}`;
+}
+
+function renderHighRiskClassification(hrc) {
+  if (!hrc || typeof hrc !== "object") return "(not provided)";
+
+  if (hrc.isHighRisk === true) {
+    const categories = Array.isArray(hrc.applicableCategories)
+      ? hrc.applicableCategories.filter((c) => typeof c === "string" && c.trim())
+      : [];
+    if (!categories.length) {
+      return "\n  Classified as high-risk under Annex III, but no categories were selected by the provider.\n  (high-risk indicated but no categories selected)";
+    }
+    const justifications =
+      hrc.justifications && typeof hrc.justifications === "object"
+        ? hrc.justifications
+        : {};
+    const lines = [
+      "  Classified as high-risk under Annex III for the following categories:",
+    ];
+    for (const category of categories) {
+      const j =
+        typeof justifications[category] === "string"
+          ? justifications[category].trim()
+          : "";
+      lines.push(`  - ${category}`);
+      lines.push(`      Justification: ${j || "(no justification provided)"}`);
+    }
+    return `\n${lines.join("\n")}`;
+  }
+
+  if (hrc.isHighRisk === false) {
+    const j =
+      typeof hrc.notHighRiskJustification === "string"
+        ? hrc.notHighRiskJustification.trim()
+        : "";
+    return `\n  Not classified as high-risk under Annex III. Justification: ${
+      j || "(no justification provided)"
+    }`;
+  }
+
+  return "(not provided)";
+}
+
 function buildUserMessage(body) {
   const m = modalitiesList(body.modalities);
+  const intendedBlock = renderUseCases(body.intendedUseCases);
+  const prohibitedBlock = renderUseCases(body.prohibitedUseCases);
+  const highRiskBlock = renderHighRiskClassification(body.highRiskClassification);
 
   return `Generate a complete Annex XI technical documentation package for the following GPAI model:
 
@@ -53,9 +132,11 @@ EVALUATION
 - Known limitations: ${body.knownLimitations ?? "(not provided)"}
 
 INTENDED PURPOSE
-- Intended use cases: ${body.intendedUseCases ?? "(not provided)"}
-- Prohibited use cases: ${body.prohibitedUseCases ?? "(not provided)"}
-- High-risk AI system use cases (yes/no): ${body.highRiskAiSystem ?? "(not provided)"}`;
+7.1 — Intended use cases:${intendedBlock}
+
+7.2 — Prohibited use cases:${prohibitedBlock}
+
+7.3 — High-risk classification (per Annex III):${highRiskBlock}`;
 }
 
 export async function POST(request) {

@@ -26,6 +26,47 @@ const MODALITIES = [
   { key: "code", label: "Code" },
 ];
 
+const INTENDED_USE_CATEGORIES = [
+  "Text generation",
+  "Code generation",
+  "Conversational AI",
+  "Question answering",
+  "Summarization",
+  "Translation",
+  "Classification",
+  "Information retrieval",
+  "Content moderation",
+  "Creative writing",
+  "Embedding generation",
+  "Domain-specific applications",
+];
+
+const PROHIBITED_USE_CATEGORIES = [
+  "Subliminal manipulation",
+  "Exploitation of vulnerabilities",
+  "Social scoring by public authorities",
+  "Real-time remote biometric ID",
+  "Predictive policing",
+  "Emotion recognition in workplace/education",
+  "Biometric categorisation inferring protected characteristics",
+  "Untargeted facial scraping",
+  "Medical diagnosis without clinical oversight",
+  "Legal advice without legal supervision",
+  "Autonomous weapons",
+  "CSAM/non-consensual imagery",
+];
+
+const ANNEX_III_CATEGORIES = [
+  "Biometric ID",
+  "Critical infrastructure",
+  "Education/vocational training",
+  "Employment/workers management",
+  "Essential services access",
+  "Law enforcement",
+  "Migration/asylum/border",
+  "Justice/democratic processes",
+];
+
 const initialForm = {
   modelName: "",
   providerName: "",
@@ -45,9 +86,20 @@ const initialForm = {
   benchmarksUsed: "",
   evaluationResultsSummary: "",
   knownLimitations: "",
-  intendedUseCases: "",
-  prohibitedUseCases: "",
-  highRiskAiSystem: "",
+  intendedUseCases: {
+    selectedCategories: [],
+    customDescription: "",
+  },
+  prohibitedUseCases: {
+    selectedCategories: [],
+    customDescription: "",
+  },
+  highRiskClassification: {
+    isHighRisk: false,
+    applicableCategories: [],
+    justifications: {},
+    notHighRiskJustification: "",
+  },
 };
 
 const REFERENCE_PATTERNS = [
@@ -135,6 +187,89 @@ export default function GeneratePage() {
     setForm((prev) => ({
       ...prev,
       modalities: { ...prev.modalities, [key]: !prev.modalities[key] },
+    }));
+  }
+
+  function toggleUseCategory(group, category) {
+    setForm((prev) => {
+      const current = prev[group].selectedCategories;
+      const next = current.includes(category)
+        ? current.filter((c) => c !== category)
+        : [...current, category];
+      return {
+        ...prev,
+        [group]: { ...prev[group], selectedCategories: next },
+      };
+    });
+  }
+
+  function setUseDescription(group, value) {
+    setForm((prev) => ({
+      ...prev,
+      [group]: { ...prev[group], customDescription: value },
+    }));
+  }
+
+  function setIsHighRisk(value) {
+    setForm((prev) => ({
+      ...prev,
+      highRiskClassification: value
+        ? {
+            ...prev.highRiskClassification,
+            isHighRisk: true,
+            notHighRiskJustification: "",
+          }
+        : {
+            ...prev.highRiskClassification,
+            isHighRisk: false,
+            applicableCategories: [],
+            justifications: {},
+          },
+    }));
+  }
+
+  function toggleHighRiskCategory(category) {
+    setForm((prev) => {
+      const current = prev.highRiskClassification.applicableCategories;
+      const isSelected = current.includes(category);
+      const nextCategories = isSelected
+        ? current.filter((c) => c !== category)
+        : [...current, category];
+      const nextJustifications = { ...prev.highRiskClassification.justifications };
+      if (isSelected) {
+        delete nextJustifications[category];
+      }
+      return {
+        ...prev,
+        highRiskClassification: {
+          ...prev.highRiskClassification,
+          applicableCategories: nextCategories,
+          justifications: nextJustifications,
+        },
+      };
+    });
+  }
+
+  function setHighRiskJustification(category, value) {
+    setForm((prev) => ({
+      ...prev,
+      highRiskClassification: {
+        ...prev.highRiskClassification,
+        justifications: {
+          ...prev.highRiskClassification.justifications,
+          [category]: value,
+        },
+      },
+    }));
+  }
+
+  function setNotHighRiskJustification(value) {
+    setForm((prev) => ({
+      ...prev,
+      highRiskClassification: {
+        ...prev.highRiskClassification,
+        notHighRiskJustification: value,
+      },
     }));
   }
 
@@ -887,52 +1022,233 @@ export default function GeneratePage() {
                 <div className="pb-3" style={sectionDivider}>
                   <h2 className={sectionTitleClass}>Intended purpose</h2>
                 </div>
-                <div>
-                  <label htmlFor="intended" className={labelClass}>Intended use cases</label>
-                  <textarea
-                    id="intended"
-                    rows={4}
-                    className={`${inputClass} min-h-[100px] resize-y`}
-                    value={form.intendedUseCases}
-                    onChange={(e) => updateField("intendedUseCases", e.target.value)}
-                    placeholder="Assistant drafting, research summarization…"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="prohibited" className={labelClass}>Prohibited use cases</label>
-                  <textarea
-                    id="prohibited"
-                    rows={4}
-                    className={`${inputClass} min-h-[100px] resize-y`}
-                    value={form.prohibitedUseCases}
-                    onChange={(e) => updateField("prohibitedUseCases", e.target.value)}
-                    placeholder="No legal advice, no automated decisions without review…"
-                  />
-                </div>
-                <fieldset className="min-w-0 border-0 p-0">
-                  <legend className={labelClass}>High-risk AI system use cases</legend>
-                  <div className="mt-2 flex flex-wrap gap-5">
-                    {[
-                      { value: "yes", label: "Yes" },
-                      { value: "no", label: "No" },
-                    ].map(({ value, label }) => (
-                      <label
-                        key={value}
-                        className="flex cursor-pointer items-center gap-2.5 text-[14px] font-normal text-[#FFFFFF]"
-                      >
-                        <input
-                          type="radio"
-                          name="highRisk"
-                          value={value}
-                          checked={form.highRiskAiSystem === value}
-                          onChange={() => updateField("highRiskAiSystem", value)}
-                          className="juris-radio"
-                        />
-                        {label}
-                      </label>
-                    ))}
+
+                {/* 7.1 Intended use cases */}
+                <section className="flex flex-col gap-3">
+                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                    7.1 — Intended use cases
+                  </h3>
+                  <fieldset className="min-w-0 border-0 p-0">
+                    <legend className={labelClass}>Select all that apply</legend>
+                    <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {INTENDED_USE_CATEGORIES.map((category) => {
+                        const checked =
+                          form.intendedUseCases.selectedCategories.includes(category);
+                        return (
+                          <label
+                            key={category}
+                            className={`flex cursor-pointer items-start gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal leading-snug transition-colors ${
+                              checked
+                                ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
+                                : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() =>
+                                toggleUseCategory("intendedUseCases", category)
+                              }
+                              className="juris-check mt-0.5"
+                            />
+                            <span>{category}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                  <div>
+                    <label htmlFor="intendedCustom" className={labelClass}>
+                      Additional description (optional)
+                    </label>
+                    <textarea
+                      id="intendedCustom"
+                      rows={3}
+                      className={`${inputClass} min-h-[88px] resize-y`}
+                      value={form.intendedUseCases.customDescription}
+                      onChange={(e) =>
+                        setUseDescription("intendedUseCases", e.target.value)
+                      }
+                      placeholder="Specific deployment contexts, domains, user populations…"
+                    />
                   </div>
-                </fieldset>
+                </section>
+
+                {/* 7.2 Prohibited use cases */}
+                <section className="mt-2 flex flex-col gap-3 border-t border-[#1A1A1A] pt-6">
+                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                    7.2 — Prohibited use cases
+                  </h3>
+                  <fieldset className="min-w-0 border-0 p-0">
+                    <legend className={labelClass}>
+                      Select all categories your model is contractually prohibited from
+                    </legend>
+                    <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {PROHIBITED_USE_CATEGORIES.map((category) => {
+                        const checked =
+                          form.prohibitedUseCases.selectedCategories.includes(category);
+                        return (
+                          <label
+                            key={category}
+                            className={`flex cursor-pointer items-start gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal leading-snug transition-colors ${
+                              checked
+                                ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
+                                : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() =>
+                                toggleUseCategory("prohibitedUseCases", category)
+                              }
+                              className="juris-check mt-0.5"
+                            />
+                            <span>{category}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                  <div>
+                    <label htmlFor="prohibitedCustom" className={labelClass}>
+                      Additional prohibitions (optional)
+                    </label>
+                    <textarea
+                      id="prohibitedCustom"
+                      rows={3}
+                      className={`${inputClass} min-h-[88px] resize-y`}
+                      value={form.prohibitedUseCases.customDescription}
+                      onChange={(e) =>
+                        setUseDescription("prohibitedUseCases", e.target.value)
+                      }
+                      placeholder="Provider-specific restrictions not captured above…"
+                    />
+                  </div>
+                </section>
+
+                {/* 7.3 High-risk classification */}
+                <section className="mt-2 flex flex-col gap-3 border-t border-[#1A1A1A] pt-6">
+                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                    7.3 — High-risk classification (Annex III)
+                  </h3>
+                  <fieldset className="min-w-0 border-0 p-0">
+                    <legend className={labelClass}>
+                      Does this model qualify as a high-risk AI system under Annex III?
+                    </legend>
+                    <div className="mt-2 flex flex-wrap gap-5">
+                      {[
+                        { value: true, label: "Yes" },
+                        { value: false, label: "No" },
+                      ].map(({ value, label }) => (
+                        <label
+                          key={String(value)}
+                          className="flex cursor-pointer items-center gap-2.5 text-[14px] font-normal text-[#FFFFFF]"
+                        >
+                          <input
+                            type="radio"
+                            name="isHighRisk"
+                            checked={form.highRiskClassification.isHighRisk === value}
+                            onChange={() => setIsHighRisk(value)}
+                            className="juris-radio"
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  {form.highRiskClassification.isHighRisk ? (
+                    <div className="flex flex-col gap-4">
+                      <fieldset className="min-w-0 border-0 p-0">
+                        <legend className={labelClass}>
+                          Applicable Annex III categories
+                        </legend>
+                        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          {ANNEX_III_CATEGORIES.map((category) => {
+                            const checked =
+                              form.highRiskClassification.applicableCategories.includes(
+                                category,
+                              );
+                            return (
+                              <label
+                                key={category}
+                                className={`flex cursor-pointer items-start gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal leading-snug transition-colors ${
+                                  checked
+                                    ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
+                                    : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => toggleHighRiskCategory(category)}
+                                  className="juris-check mt-0.5"
+                                />
+                                <span>{category}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </fieldset>
+
+                      {form.highRiskClassification.applicableCategories.length === 0 && (
+                        <p className={`${mono} text-[11px] uppercase tracking-[0.08em] text-[#666666]`}>
+                          Select at least one Annex III category to provide justifications.
+                        </p>
+                      )}
+
+                      {form.highRiskClassification.applicableCategories.map(
+                        (category) => {
+                          const id = `justification-${category.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`;
+                          return (
+                            <div key={category}>
+                              <label htmlFor={id} className={labelClass}>
+                                Justification — {category}{" "}
+                                <span className="text-[#FFFFFF]">*</span>
+                              </label>
+                              <textarea
+                                id={id}
+                                required
+                                rows={3}
+                                className={`${inputClass} min-h-[88px] resize-y`}
+                                value={
+                                  form.highRiskClassification.justifications[
+                                    category
+                                  ] || ""
+                                }
+                                onChange={(e) =>
+                                  setHighRiskJustification(category, e.target.value)
+                                }
+                                placeholder="Specific Annex III sub-paragraph(s), intended deployment, and risk-mitigation posture…"
+                              />
+                            </div>
+                          );
+                        },
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <label htmlFor="notHighRiskJustification" className={labelClass}>
+                        Justification that the model is not high-risk{" "}
+                        <span className="text-[#FFFFFF]">*</span>
+                      </label>
+                      <textarea
+                        id="notHighRiskJustification"
+                        required
+                        rows={4}
+                        className={`${inputClass} min-h-[100px] resize-y`}
+                        value={
+                          form.highRiskClassification.notHighRiskJustification
+                        }
+                        onChange={(e) =>
+                          setNotHighRiskJustification(e.target.value)
+                        }
+                        placeholder="Explain why none of the Annex III categories apply: intended purpose, scope, target users, downstream use restrictions…"
+                      />
+                    </div>
+                  )}
+                </section>
               </div>
             )}
 
