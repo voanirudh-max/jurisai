@@ -2,6 +2,36 @@ import { NextResponse } from "next/server";
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
+const EU_MEMBER_STATES = [
+  "Austria",
+  "Belgium",
+  "Bulgaria",
+  "Croatia",
+  "Cyprus",
+  "Czechia",
+  "Denmark",
+  "Estonia",
+  "Finland",
+  "France",
+  "Germany",
+  "Greece",
+  "Hungary",
+  "Ireland",
+  "Italy",
+  "Latvia",
+  "Lithuania",
+  "Luxembourg",
+  "Malta",
+  "Netherlands",
+  "Poland",
+  "Portugal",
+  "Romania",
+  "Slovakia",
+  "Slovenia",
+  "Spain",
+  "Sweden",
+];
+
 const SYSTEM_PROMPT = `You are an EU AI Act compliance expert. Generate a formal Annex XI technical documentation package under Regulation (EU) 2024/1689 Article 53(1)(a). Output must be structured, precise, and regulation-compliant. Use formal legal document formatting with clear section headers.
 
 FORMATTING REQUIREMENTS:
@@ -48,14 +78,20 @@ function renderProviderLegalIdentity(providerName, identity) {
   if (!identity || typeof identity !== "object") {
     return `Legal entity / provider name: ${cleanText(providerName)}
 Legal identity details: (not provided)
-Authorised representative: (not provided)`;
+EU establishment status: Undetermined pending country selection.
+Authorised representative: Cannot be assessed until country of establishment is provided.`;
   }
 
+  const countryOfEstablishment =
+    typeof identity.countryOfEstablishment === "string"
+      ? identity.countryOfEstablishment.trim()
+      : "";
+  const isEUEstablished = EU_MEMBER_STATES.includes(countryOfEstablishment);
   const lines = [
     `Legal entity / provider name: ${cleanText(providerName)}`,
     `Legal form: ${cleanText(identity.legalForm)}`,
     `Registered address: ${cleanText(identity.registeredAddress)}`,
-    `Country of establishment: ${cleanText(identity.countryOfEstablishment)}`,
+    `Country of establishment: ${cleanText(countryOfEstablishment)}`,
     `Company registration number: ${cleanText(identity.companyRegistrationNumber)}`,
     `VAT / tax number: ${cleanText(identity.vatNumber)}`,
     `Compliance contact name: ${cleanText(identity.complianceContactName)}`,
@@ -63,7 +99,12 @@ Authorised representative: (not provided)`;
     `Compliance contact email: ${cleanText(identity.complianceContactEmail)}`,
   ];
 
-  if (identity.establishedOutsideEU === true) {
+  if (!countryOfEstablishment) {
+    lines.push(
+      "EU establishment status: Undetermined pending country selection.",
+      "Article 54 authorised representative: Cannot be assessed until the country of establishment is provided.",
+    );
+  } else if (!isEUEstablished) {
     const rep =
       identity.authorisedRepresentative &&
       typeof identity.authorisedRepresentative === "object"
