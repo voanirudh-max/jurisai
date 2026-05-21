@@ -70,6 +70,22 @@ const ANNEX_III_CATEGORIES = [
 const initialForm = {
   modelName: "",
   providerName: "",
+  providerLegalIdentity: {
+    legalForm: "",
+    registeredAddress: "",
+    countryOfEstablishment: "",
+    companyRegistrationNumber: "",
+    vatNumber: "",
+    complianceContactName: "",
+    complianceContactRole: "",
+    complianceContactEmail: "",
+    establishedOutsideEU: false,
+    authorisedRepresentative: {
+      name: "",
+      address: "",
+      contactEmail: "",
+    },
+  },
   versionNumber: "",
   releaseDate: "",
   modelArchitecture: "",
@@ -187,6 +203,46 @@ export default function GeneratePage() {
     setForm((prev) => ({
       ...prev,
       modalities: { ...prev.modalities, [key]: !prev.modalities[key] },
+    }));
+  }
+
+  function setLegalIdentityField(field, value) {
+    setForm((prev) => ({
+      ...prev,
+      providerLegalIdentity: {
+        ...prev.providerLegalIdentity,
+        [field]: value,
+      },
+    }));
+  }
+
+  function setEstablishedOutsideEU(value) {
+    setForm((prev) => ({
+      ...prev,
+      providerLegalIdentity: {
+        ...prev.providerLegalIdentity,
+        establishedOutsideEU: value,
+        authorisedRepresentative: value
+          ? prev.providerLegalIdentity.authorisedRepresentative
+          : {
+              name: "",
+              address: "",
+              contactEmail: "",
+            },
+      },
+    }));
+  }
+
+  function setAuthRepField(field, value) {
+    setForm((prev) => ({
+      ...prev,
+      providerLegalIdentity: {
+        ...prev.providerLegalIdentity,
+        authorisedRepresentative: {
+          ...prev.providerLegalIdentity.authorisedRepresentative,
+          [field]: value,
+        },
+      },
     }));
   }
 
@@ -791,6 +847,170 @@ export default function GeneratePage() {
                       placeholder="Legal entity or product owner"
                     />
                   </div>
+                  <div className="sm:col-span-2 border-t border-[#1A1A1A] pt-5">
+                    <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                      Provider Legal Identity
+                    </h3>
+                    <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                      The legal entity name is captured above in Provider name.
+                    </p>
+                  </div>
+                  <div>
+                    <label htmlFor="legalForm" className={labelClass}>Legal form</label>
+                    <input
+                      id="legalForm"
+                      type="text"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.legalForm}
+                      onChange={(e) => setLegalIdentityField("legalForm", e.target.value)}
+                      placeholder="e.g. Private Limited, GmbH, S.A.S."
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="countryOfEstablishment" className={labelClass}>Country of establishment</label>
+                    <input
+                      id="countryOfEstablishment"
+                      type="text"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.countryOfEstablishment}
+                      onChange={(e) => setLegalIdentityField("countryOfEstablishment", e.target.value)}
+                      placeholder="e.g. Germany"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="registeredAddress" className={labelClass}>Registered address</label>
+                    <textarea
+                      id="registeredAddress"
+                      rows={3}
+                      className={`${inputClass} min-h-[88px] resize-y`}
+                      value={form.providerLegalIdentity.registeredAddress}
+                      onChange={(e) => setLegalIdentityField("registeredAddress", e.target.value)}
+                      placeholder="Registered office address"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="companyRegistrationNumber" className={labelClass}>Company registration number</label>
+                    <input
+                      id="companyRegistrationNumber"
+                      type="text"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.companyRegistrationNumber}
+                      onChange={(e) => setLegalIdentityField("companyRegistrationNumber", e.target.value)}
+                      placeholder="Company registry number"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="vatNumber" className={labelClass}>VAT number</label>
+                    <input
+                      id="vatNumber"
+                      type="text"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.vatNumber}
+                      onChange={(e) => setLegalIdentityField("vatNumber", e.target.value)}
+                      placeholder="VAT / tax registration number"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="complianceContactName" className={labelClass}>Compliance contact name</label>
+                    <input
+                      id="complianceContactName"
+                      type="text"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.complianceContactName}
+                      onChange={(e) => setLegalIdentityField("complianceContactName", e.target.value)}
+                      placeholder="Named compliance owner"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="complianceContactRole" className={labelClass}>Compliance contact role</label>
+                    <input
+                      id="complianceContactRole"
+                      type="text"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.complianceContactRole}
+                      onChange={(e) => setLegalIdentityField("complianceContactRole", e.target.value)}
+                      placeholder="e.g. Head of Compliance"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="complianceContactEmail" className={labelClass}>Compliance contact email</label>
+                    <input
+                      id="complianceContactEmail"
+                      type="email"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.complianceContactEmail}
+                      onChange={(e) => setLegalIdentityField("complianceContactEmail", e.target.value)}
+                      placeholder="compliance@example.com"
+                    />
+                  </div>
+                  <fieldset className="sm:col-span-2 min-w-0 border-0 p-0">
+                    <legend className={labelClass}>Is the provider established outside the EU?</legend>
+                    <div className="mt-2 flex flex-wrap gap-5">
+                      {[
+                        { value: true, label: "Yes" },
+                        { value: false, label: "No" },
+                      ].map(({ value, label }) => (
+                        <label
+                          key={String(value)}
+                          className="flex cursor-pointer items-center gap-2.5 text-[14px] font-normal text-[#FFFFFF]"
+                        >
+                          <input
+                            type="radio"
+                            name="establishedOutsideEU"
+                            checked={form.providerLegalIdentity.establishedOutsideEU === value}
+                            onChange={() => setEstablishedOutsideEU(value)}
+                            className="juris-radio"
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                  {form.providerLegalIdentity.establishedOutsideEU && (
+                    <>
+                      <div className="sm:col-span-2 border-t border-[#1A1A1A] pt-5">
+                        <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                          Authorised Representative
+                        </h3>
+                        <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                          Required for non-EU GPAI providers under Article 54.
+                        </p>
+                      </div>
+                      <div>
+                        <label htmlFor="authRepName" className={labelClass}>Representative name</label>
+                        <input
+                          id="authRepName"
+                          type="text"
+                          className={inputClass}
+                          value={form.providerLegalIdentity.authorisedRepresentative.name}
+                          onChange={(e) => setAuthRepField("name", e.target.value)}
+                          placeholder="EU authorised representative"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="authRepContactEmail" className={labelClass}>Representative contact email</label>
+                        <input
+                          id="authRepContactEmail"
+                          type="email"
+                          className={inputClass}
+                          value={form.providerLegalIdentity.authorisedRepresentative.contactEmail}
+                          onChange={(e) => setAuthRepField("contactEmail", e.target.value)}
+                          placeholder="representative@example.eu"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label htmlFor="authRepAddress" className={labelClass}>Representative address</label>
+                        <textarea
+                          id="authRepAddress"
+                          rows={3}
+                          className={`${inputClass} min-h-[88px] resize-y`}
+                          value={form.providerLegalIdentity.authorisedRepresentative.address}
+                          onChange={(e) => setAuthRepField("address", e.target.value)}
+                          placeholder="EU establishment address"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div>
                     <label htmlFor="versionNumber" className={labelClass}>Version number</label>
                     <input
