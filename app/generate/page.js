@@ -67,6 +67,234 @@ const ANNEX_III_CATEGORIES = [
   "Justice/democratic processes",
 ];
 
+const EU_MEMBER_STATES = [
+  "Austria",
+  "Belgium",
+  "Bulgaria",
+  "Croatia",
+  "Cyprus",
+  "Czechia",
+  "Denmark",
+  "Estonia",
+  "Finland",
+  "France",
+  "Germany",
+  "Greece",
+  "Hungary",
+  "Ireland",
+  "Italy",
+  "Latvia",
+  "Lithuania",
+  "Luxembourg",
+  "Malta",
+  "Netherlands",
+  "Poland",
+  "Portugal",
+  "Romania",
+  "Slovakia",
+  "Slovenia",
+  "Spain",
+  "Sweden",
+];
+
+const WORLD_COUNTRIES = [
+  "Afghanistan",
+  "Albania",
+  "Algeria",
+  "Andorra",
+  "Angola",
+  "Antigua and Barbuda",
+  "Argentina",
+  "Armenia",
+  "Australia",
+  "Austria",
+  "Azerbaijan",
+  "Bahamas",
+  "Bahrain",
+  "Bangladesh",
+  "Barbados",
+  "Belarus",
+  "Belgium",
+  "Belize",
+  "Benin",
+  "Bhutan",
+  "Bolivia",
+  "Bosnia and Herzegovina",
+  "Botswana",
+  "Brazil",
+  "Brunei",
+  "Bulgaria",
+  "Burkina Faso",
+  "Burundi",
+  "Cabo Verde",
+  "Cambodia",
+  "Cameroon",
+  "Canada",
+  "Central African Republic",
+  "Chad",
+  "Chile",
+  "China",
+  "Colombia",
+  "Comoros",
+  "Congo",
+  "Costa Rica",
+  "Croatia",
+  "Cuba",
+  "Cyprus",
+  "Czechia",
+  "Democratic Republic of the Congo",
+  "Denmark",
+  "Djibouti",
+  "Dominica",
+  "Dominican Republic",
+  "Ecuador",
+  "Egypt",
+  "El Salvador",
+  "Equatorial Guinea",
+  "Eritrea",
+  "Estonia",
+  "Eswatini",
+  "Ethiopia",
+  "Fiji",
+  "Finland",
+  "France",
+  "Gabon",
+  "Gambia",
+  "Georgia",
+  "Germany",
+  "Ghana",
+  "Greece",
+  "Grenada",
+  "Guatemala",
+  "Guinea",
+  "Guinea-Bissau",
+  "Guyana",
+  "Haiti",
+  "Honduras",
+  "Hungary",
+  "Iceland",
+  "India",
+  "Indonesia",
+  "Iran",
+  "Iraq",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Jamaica",
+  "Japan",
+  "Jordan",
+  "Kazakhstan",
+  "Kenya",
+  "Kiribati",
+  "Kuwait",
+  "Kyrgyzstan",
+  "Laos",
+  "Latvia",
+  "Lebanon",
+  "Lesotho",
+  "Liberia",
+  "Libya",
+  "Liechtenstein",
+  "Lithuania",
+  "Luxembourg",
+  "Madagascar",
+  "Malawi",
+  "Malaysia",
+  "Maldives",
+  "Mali",
+  "Malta",
+  "Marshall Islands",
+  "Mauritania",
+  "Mauritius",
+  "Mexico",
+  "Micronesia",
+  "Moldova",
+  "Monaco",
+  "Mongolia",
+  "Montenegro",
+  "Morocco",
+  "Mozambique",
+  "Myanmar",
+  "Namibia",
+  "Nauru",
+  "Nepal",
+  "Netherlands",
+  "New Zealand",
+  "Nicaragua",
+  "Niger",
+  "Nigeria",
+  "North Korea",
+  "North Macedonia",
+  "Norway",
+  "Oman",
+  "Pakistan",
+  "Palau",
+  "Palestine",
+  "Panama",
+  "Papua New Guinea",
+  "Paraguay",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Qatar",
+  "Romania",
+  "Russia",
+  "Rwanda",
+  "Saint Kitts and Nevis",
+  "Saint Lucia",
+  "Saint Vincent and the Grenadines",
+  "Samoa",
+  "San Marino",
+  "Sao Tome and Principe",
+  "Saudi Arabia",
+  "Senegal",
+  "Serbia",
+  "Seychelles",
+  "Sierra Leone",
+  "Singapore",
+  "Slovakia",
+  "Slovenia",
+  "Solomon Islands",
+  "Somalia",
+  "South Africa",
+  "South Korea",
+  "South Sudan",
+  "Spain",
+  "Sri Lanka",
+  "Sudan",
+  "Suriname",
+  "Sweden",
+  "Switzerland",
+  "Syria",
+  "Taiwan",
+  "Tajikistan",
+  "Tanzania",
+  "Thailand",
+  "Timor-Leste",
+  "Togo",
+  "Tonga",
+  "Trinidad and Tobago",
+  "Tunisia",
+  "Turkey",
+  "Turkmenistan",
+  "Tuvalu",
+  "Uganda",
+  "Ukraine",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Uzbekistan",
+  "Vanuatu",
+  "Vatican City",
+  "Venezuela",
+  "Vietnam",
+  "Yemen",
+  "Zambia",
+  "Zimbabwe",
+];
+
 const initialForm = {
   modelName: "",
   providerName: "",
@@ -79,7 +307,6 @@ const initialForm = {
     complianceContactName: "",
     complianceContactRole: "",
     complianceContactEmail: "",
-    establishedOutsideEU: false,
     authorisedRepresentative: {
       name: "",
       address: "",
@@ -194,6 +421,9 @@ export default function GeneratePage() {
     () => extractReferenceNumber(generatedDocument),
     [generatedDocument],
   );
+  const isEUEstablished = EU_MEMBER_STATES.includes(
+    form.providerLegalIdentity.countryOfEstablishment,
+  );
 
   function updateField(key, value) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -216,19 +446,19 @@ export default function GeneratePage() {
     }));
   }
 
-  function setEstablishedOutsideEU(value) {
+  function setCountryOfEstablishment(value) {
     setForm((prev) => ({
       ...prev,
       providerLegalIdentity: {
         ...prev.providerLegalIdentity,
-        establishedOutsideEU: value,
-        authorisedRepresentative: value
-          ? prev.providerLegalIdentity.authorisedRepresentative
-          : {
+        countryOfEstablishment: value,
+        authorisedRepresentative: EU_MEMBER_STATES.includes(value)
+          ? {
               name: "",
               address: "",
               contactEmail: "",
-            },
+            }
+          : prev.providerLegalIdentity.authorisedRepresentative,
       },
     }));
   }
@@ -868,14 +1098,20 @@ export default function GeneratePage() {
                   </div>
                   <div>
                     <label htmlFor="countryOfEstablishment" className={labelClass}>Country of establishment</label>
-                    <input
+                    <select
                       id="countryOfEstablishment"
-                      type="text"
                       className={inputClass}
+                      required
                       value={form.providerLegalIdentity.countryOfEstablishment}
-                      onChange={(e) => setLegalIdentityField("countryOfEstablishment", e.target.value)}
-                      placeholder="e.g. Germany"
-                    />
+                      onChange={(e) => setCountryOfEstablishment(e.target.value)}
+                    >
+                      <option value="">Select country</option>
+                      {WORLD_COUNTRIES.map((country) => (
+                        <option key={country} value={country}>
+                          {country}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="sm:col-span-2">
                     <label htmlFor="registeredAddress" className={labelClass}>Registered address</label>
@@ -943,30 +1179,8 @@ export default function GeneratePage() {
                       placeholder="compliance@example.com"
                     />
                   </div>
-                  <fieldset className="sm:col-span-2 min-w-0 border-0 p-0">
-                    <legend className={labelClass}>Is the provider established outside the EU?</legend>
-                    <div className="mt-2 flex flex-wrap gap-5">
-                      {[
-                        { value: true, label: "Yes" },
-                        { value: false, label: "No" },
-                      ].map(({ value, label }) => (
-                        <label
-                          key={String(value)}
-                          className="flex cursor-pointer items-center gap-2.5 text-[14px] font-normal text-[#FFFFFF]"
-                        >
-                          <input
-                            type="radio"
-                            name="establishedOutsideEU"
-                            checked={form.providerLegalIdentity.establishedOutsideEU === value}
-                            onChange={() => setEstablishedOutsideEU(value)}
-                            className="juris-radio"
-                          />
-                          {label}
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                  {form.providerLegalIdentity.establishedOutsideEU && (
+                  {form.providerLegalIdentity.countryOfEstablishment &&
+                    !isEUEstablished && (
                     <>
                       <div className="sm:col-span-2 border-t border-[#1A1A1A] pt-5">
                         <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
