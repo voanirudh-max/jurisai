@@ -11,6 +11,11 @@ FORMATTING REQUIREMENTS:
 - Tables must be valid GitHub-flavored markdown (\`| col | col |\` with a \`| --- | --- |\` separator row).
 - Inline code (backticks) is only for short technical identifiers; do not wrap prose in code blocks.
 
+SECTION 1.1 REQUIREMENTS (PROVIDER LEGAL IDENTITY):
+Generate a formally labeled subsection titled "### 1.1 Provider Legal Identity". It must include a clean regulator-grade identity table or block for the provider, covering the legal entity/provider name, legal form, registered address, country of establishment, company registration number, VAT/tax number, and compliance contact details.
+
+Section 1.1 must also include an explicit authorised-representative statement. Under Article 54 of the EU AI Act, a provider of a general-purpose AI model established outside the EU must, by written mandate, appoint an authorised representative established in the EU. If the provider is established outside the EU, name the authorised representative and include their address and contact email. If the provider is EU-established, state that Article 54 authorised-representative appointment does not apply because the provider is established within the EU.
+
 SECTION 7 REQUIREMENTS (INTENDED PURPOSE):
 For Section 7, generate three formally labeled subsections:
 
@@ -31,6 +36,54 @@ function modalitiesList(modalities) {
     .filter(([, v]) => Boolean(v))
     .map(([k]) => k);
   return on.length ? on.join(", ") : "None selected";
+}
+
+function cleanText(value) {
+  return typeof value === "string" && value.trim()
+    ? value.trim()
+    : "(not provided)";
+}
+
+function renderProviderLegalIdentity(providerName, identity) {
+  if (!identity || typeof identity !== "object") {
+    return `Legal entity / provider name: ${cleanText(providerName)}
+Legal identity details: (not provided)
+Authorised representative: (not provided)`;
+  }
+
+  const lines = [
+    `Legal entity / provider name: ${cleanText(providerName)}`,
+    `Legal form: ${cleanText(identity.legalForm)}`,
+    `Registered address: ${cleanText(identity.registeredAddress)}`,
+    `Country of establishment: ${cleanText(identity.countryOfEstablishment)}`,
+    `Company registration number: ${cleanText(identity.companyRegistrationNumber)}`,
+    `VAT / tax number: ${cleanText(identity.vatNumber)}`,
+    `Compliance contact name: ${cleanText(identity.complianceContactName)}`,
+    `Compliance contact role: ${cleanText(identity.complianceContactRole)}`,
+    `Compliance contact email: ${cleanText(identity.complianceContactEmail)}`,
+  ];
+
+  if (identity.establishedOutsideEU === true) {
+    const rep =
+      identity.authorisedRepresentative &&
+      typeof identity.authorisedRepresentative === "object"
+        ? identity.authorisedRepresentative
+        : {};
+    lines.push(
+      "EU establishment status: Provider is established outside the EU.",
+      "Article 54 authorised representative: Required for non-EU GPAI providers.",
+      `Authorised representative name: ${cleanText(rep.name)}`,
+      `Authorised representative address: ${cleanText(rep.address)}`,
+      `Authorised representative contact email: ${cleanText(rep.contactEmail)}`,
+    );
+  } else {
+    lines.push(
+      "EU establishment status: Provider is established within the EU.",
+      "Article 54 authorised representative: Not required because the provider is EU-established.",
+    );
+  }
+
+  return lines.map((line) => `- ${line}`).join("\n");
 }
 
 function renderUseCases(group) {
@@ -97,6 +150,10 @@ function renderHighRiskClassification(hrc) {
 
 function buildUserMessage(body) {
   const m = modalitiesList(body.modalities);
+  const providerLegalIdentityBlock = renderProviderLegalIdentity(
+    body.providerName,
+    body.providerLegalIdentity,
+  );
   const intendedBlock = renderUseCases(body.intendedUseCases);
   const prohibitedBlock = renderUseCases(body.prohibitedUseCases);
   const highRiskBlock = renderHighRiskClassification(body.highRiskClassification);
@@ -108,6 +165,9 @@ MODEL IDENTITY
 - Provider name: ${body.providerName ?? "(not provided)"}
 - Version number: ${body.versionNumber ?? "(not provided)"}
 - Release date: ${body.releaseDate ?? "(not provided)"}
+
+SECTION 1.1 — PROVIDER LEGAL IDENTITY
+${providerLegalIdentityBlock}
 
 ARCHITECTURE
 - Model architecture: ${body.modelArchitecture ?? "(not provided)"}
