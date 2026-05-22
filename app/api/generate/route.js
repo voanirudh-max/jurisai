@@ -37,7 +37,8 @@ const SYSTEM_PROMPT = `You are an EU AI Act compliance expert. Generate a formal
 FORMATTING REQUIREMENTS:
 - Use clean markdown only: # / ## / ### for headings, **bold** for emphasis, GitHub-flavored tables for tabular data, ordered or unordered lists for enumerations, and --- for section breaks.
 - DO NOT produce ASCII art, box diagrams, character-based illustrations, or any drawing made from |, -, +, =, ─, │, ┌, ┐, └, ┘, ├, ┤, ┬, ┴, ┼, ▲, ▼, ◀, ▶, ║, ╔, ╗, ╚, ╝, █, ░, ▒, ▓, or similar box-drawing or block characters.
-- When describing the training pipeline or any workflow, present it as a numbered list of stages with a short title and a one-sentence description for each stage. You MAY use the single arrow character → on one line to summarise a sequence (e.g. "Pre-training → Supervised fine-tuning → Preference optimisation → Safety evaluation"), but never construct multi-line diagrams.
+- Use ASCII-safe notation throughout the generated document. Write compute values as 10^25 FLOPs, 10^23 FLOPs, etc.; write parameter counts as 7 x 10^9, 70 x 10^9, etc. Never use superscript digits or the multiplication sign.
+- When describing the training pipeline or any workflow, present it as a numbered list of stages with a short title and a one-sentence description for each stage. You MAY use one plain ASCII sequence line with " -> " separators (for example, "Pre-training -> Supervised fine-tuning -> Preference optimisation -> Safety evaluation"), or use the word "then". Never use Unicode arrows or construct multi-line diagrams.
 - Tables must be valid GitHub-flavored markdown (\`| col | col |\` with a \`| --- | --- |\` separator row).
 - Inline code (backticks) is only for short technical identifiers; do not wrap prose in code blocks.
 
@@ -45,6 +46,8 @@ SECTION 1.1 REQUIREMENTS (PROVIDER LEGAL IDENTITY):
 Generate a formally labeled subsection titled "### 1.1 Provider Legal Identity". It must include a clean regulator-grade identity table or block for the provider, covering the legal entity/provider name, legal form, registered address, country of establishment, company registration number, VAT/tax number, and compliance contact details.
 
 Section 1.1 must also include an explicit authorised-representative statement. Under Article 54 of the EU AI Act, a provider of a general-purpose AI model established outside the EU must, by written mandate, appoint an authorised representative established in the EU. If the provider is established outside the EU, name the authorised representative and include their address and contact email. If the provider is EU-established, state that Article 54 authorised-representative appointment does not apply because the provider is established within the EU.
+
+If an authorised representative table is generated in Section 1.1.2, the representative country field must be labeled exactly "Representative's Country of Establishment". The provider identity table in Section 1.1.1 must keep the label "Country of Establishment". Do not use the same "Country of Establishment" label for both provider and representative tables.
 
 SECTION 7 REQUIREMENTS (INTENDED PURPOSE):
 For Section 7, generate three formally labeled subsections:
