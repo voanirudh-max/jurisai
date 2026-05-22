@@ -396,8 +396,15 @@ const SUPERSCRIPT_DIGITS = {
   "⁹": "9",
 };
 
+function decodeCommonAsciiEntities(input) {
+  return input
+    .replace(/&rarr;|&#8594;|&#x2192;/gi, " -> ")
+    .replace(/&rArr;|&#8658;|&#x21D2;/gi, " -> ")
+    .replace(/&times;|&#215;|&#x00D7;/gi, "x");
+}
+
 function sanitizePdfText(value) {
-  const source = String(value ?? "");
+  const source = decodeCommonAsciiEntities(String(value ?? ""));
   let out = "";
   for (let i = 0; i < source.length; i++) {
     const ch = source[i];
@@ -416,8 +423,8 @@ function sanitizePdfText(value) {
   }
 
   return out
-    .replace(/[→⇒➔➜➝➞➟➠➡⟶⟹]/g, " -> ")
-    .replace(/×/g, "x")
+    .replace(/[\u2190-\u21FF\u27F0-\u27FF\u2900-\u297F]/g, " -> ")
+    .replace(/[×✕✖⨯]/g, "x")
     .replace(/[“”]/g, '"')
     .replace(/[‘’]/g, "'")
     .replace(/[–—]/g, "-")
@@ -427,6 +434,8 @@ function sanitizePdfText(value) {
 }
 
 function preparePdfTextForWrap(value) {
+  // Chokepoint preparation for every model-derived string before measuring/wrapping.
+  // This guarantees no downstream code path can bypass sanitization.
   return sanitizePdfText(value).replace(/\S{38,}/g, (word) =>
     word.match(/.{1,28}/g).join(" "),
   );
@@ -645,6 +654,7 @@ export default function GeneratePage() {
       };
 
       const wrapTextByWidth = (rawText, maxWidth) => {
+        // First operation: sanitize text for PDF-safe ASCII rendering.
         const text = preparePdfTextForWrap(rawText);
         const paragraphs = text.replace(/\r\n/g, "\n").split("\n");
         const wrapped = [];
