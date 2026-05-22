@@ -638,16 +638,83 @@ export default function GeneratePage() {
         }
       };
 
+      const resetFlowState = () => {
+        doc.setLineWidth(1);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(...COLOR_TEXT);
+      };
+
+      const wrapTextByWidth = (rawText, maxWidth) => {
+        const text = preparePdfTextForWrap(rawText);
+        const paragraphs = text.replace(/\r\n/g, "\n").split("\n");
+        const wrapped = [];
+
+        for (const paragraph of paragraphs) {
+          const line = paragraph.trim();
+          if (!line) {
+            wrapped.push("");
+            continue;
+          }
+
+          const words = line.split(/\s+/).filter(Boolean);
+          let current = "";
+
+          const flushCurrent = () => {
+            if (current) {
+              wrapped.push(current);
+              current = "";
+            }
+          };
+
+          const pushLongWord = (word) => {
+            let chunk = "";
+            for (const ch of word) {
+              const candidate = chunk + ch;
+              if (doc.getTextWidth(candidate) <= maxWidth || !chunk) {
+                chunk = candidate;
+              } else {
+                wrapped.push(chunk);
+                chunk = ch;
+              }
+            }
+            if (chunk) wrapped.push(chunk);
+          };
+
+          for (const word of words) {
+            if (doc.getTextWidth(word) > maxWidth) {
+              flushCurrent();
+              pushLongWord(word);
+              continue;
+            }
+
+            const candidate = current ? `${current} ${word}` : word;
+            if (doc.getTextWidth(candidate) <= maxWidth || !current) {
+              current = candidate;
+            } else {
+              wrapped.push(current);
+              current = word;
+            }
+          }
+
+          flushCurrent();
+        }
+
+        return wrapped.length ? wrapped : [""];
+      };
+
       const drawText = (text, { size, style, color, indent = 0, lineMul = 1.4 }) => {
-        const safeText = preparePdfTextForWrap(text);
-        const wrapped = doc.splitTextToSize(safeText, contentWidth - indent);
+        const maxWidth = contentWidth - indent;
         const lineHeight = size * lineMul;
+        resetFlowState();
         doc.setFont("helvetica", style);
         doc.setFontSize(size);
         doc.setTextColor(color[0], color[1], color[2]);
+        const wrapped = wrapTextByWidth(text, maxWidth);
         for (const w of wrapped) {
           ensureSpace(lineHeight);
-          doc.text(w, marginX + indent, y);
+          if (w) {
+            doc.text(w, marginX + indent, y);
+          }
           y += lineHeight;
         }
       };
@@ -703,17 +770,17 @@ export default function GeneratePage() {
           if (baseText) {
             const lineHeight = 11 * 1.4;
             ensureSpace(lineHeight);
+            resetFlowState();
             doc.setFont("helvetica", "normal");
             doc.setFontSize(11);
             doc.setTextColor(...COLOR_TEXT);
             doc.text(bullet, marginX + indent - 12, y);
-            const wrapped = doc.splitTextToSize(
-              preparePdfTextForWrap(baseText),
-              contentWidth - indent,
-            );
+            const wrapped = wrapTextByWidth(baseText, contentWidth - indent);
             for (const w of wrapped) {
               ensureSpace(lineHeight);
-              doc.text(w, marginX + indent, y);
+              if (w) {
+                doc.text(w, marginX + indent, y);
+              }
               y += lineHeight;
             }
           }
@@ -749,12 +816,12 @@ export default function GeneratePage() {
           doc.setFontSize(fontSize);
           doc.setTextColor(...COLOR_TEXT);
           const wrappedCells = cells.map((c, i) =>
-            doc.splitTextToSize(c, colWidths[i] - padX * 2),
+            wrapTextByWidth(c, colWidths[i] - padX * 2),
           );
           const maxLines = Math.max(1, ...wrappedCells.map((w) => w.length));
           const rowHeight = maxLines * fontSize * lineMul + padY * 2;
           ensureSpace(rowHeight + 2);
-          const rowTop = y - fontSize;
+          const rowTop = y;
           doc.setDrawColor(...COLOR_TABLE_RULE);
           doc.setLineWidth(0.6);
           let xLeft = marginX;
@@ -769,9 +836,7 @@ export default function GeneratePage() {
             const lines = wrappedCells[i] || [];
             let cellY = rowTop + padY + fontSize;
             for (const line of lines) {
-              doc.text(line, xLeft + padX, cellY, {
-                maxWidth: colWidth - padX * 2,
-              });
+              doc.text(line, xLeft + padX, cellY);
               cellY += fontSize * lineMul;
             }
             xLeft += colWidth;
@@ -781,6 +846,8 @@ export default function GeneratePage() {
 
         if (headers.length) renderRow(headers, true);
         rows.forEach((r) => renderRow(r, false));
+        resetFlowState();
+        doc.setFontSize(11);
         y += 6;
       };
 
