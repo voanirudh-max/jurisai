@@ -423,7 +423,7 @@ function sanitizePdfText(value) {
   }
 
   return out
-    .replace(/[\u2190-\u21FF\u27F0-\u27FF\u2900-\u297F]/g, " -> ")
+    .replace(/[\u2190-\u21FF\u2700-\u27BF\u27F0-\u27FF\u2900-\u297F]/g, " -> ")
     .replace(/[×✕✖⨯]/g, "x")
     .replace(/[“”]/g, '"')
     .replace(/[‘’]/g, "'")
