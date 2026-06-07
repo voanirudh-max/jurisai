@@ -7,14 +7,17 @@ import {
   renderAnnexXiPdf,
 } from "../lib/annexXiPdf.js";
 
-/** Full India Annex XI form payload with Unicode in fields that flow to sections 3.1 and 3.3. */
+/** Full India Annex XI form payload with Unicode in fields that flow to sections 4.1 and 4.3. */
 const INDIA_PAYLOAD = {
   modelName: "JurisLM-7B",
   providerName: "JurisAI Private Limited",
   providerLegalIdentity: {
+    legalName: "JurisAI Private Limited",
+    tradeName: "JurisAI",
     legalForm: "Private Limited",
     registeredAddress: "Bengaluru, Karnataka, India",
     countryOfEstablishment: "India",
+    contactEmail: "contact@jurisai.example",
     companyRegistrationNumber: "U12345KA2026PTC000001",
     vatNumber: "GSTIN 29ABCDE1234F1Z5",
     complianceContactName: "Anika Rao",
@@ -25,6 +28,35 @@ const INDIA_PAYLOAD = {
       address: "Friedrichstrasse 100, 10117 Berlin, Germany",
       contactEmail: "eu-rep@jurisai.example",
     },
+  },
+  energyDisclosures: {
+    totalTrainingEnergyKwh: "1250000",
+    trainingComputeValue: "1.2e23",
+    trainingComputeUnit: "GPU-hours",
+    trainingInfrastructureLocations: "Hyderabad, India; Frankfurt, Germany",
+    estimatedCo2eTonnes: "420",
+    energyMethodology: "GPU-hours x hardware TDP x PUE x grid carbon intensity",
+    inferenceEnergyPerQuery: "~0.8 Wh per 1k-token response",
+  },
+  redTeaming: {
+    approach: "both",
+    adversarialCategories: [
+      "Bias",
+      "Jailbreak",
+      "Prompt injection",
+      "Harmful content",
+      "Factuality",
+    ],
+    customAdversarialCategories: "Legal advice misuse",
+    teamComposition:
+      "Internal security engineers plus external penetration testing firm with ML safety credentials.",
+    methodologySummary:
+      "Structured attack libraries, scenario-based prompt injection suites, and bias evaluation rubrics.",
+    findingsAndMitigations:
+      "Jailbreak attempts reduced via system-prompt hardening; harmful content filters tightened.",
+    residualRisks:
+      "Residual hallucination risk in legal citation contexts; mitigated via human-in-the-loop review.",
+    exerciseDates: "2026-03-15 to 2026-04-02",
   },
   versionNumber: "1.0.1",
   releaseDate: "2026-05-21",
@@ -63,7 +95,13 @@ const INDIA_PAYLOAD = {
   },
 };
 
-const MIN_RENDERED_PAGES = 12;
+const REQUIRED_SECTION_HEADINGS = [
+  "Provider Identification",
+  "Energy and Compute Disclosures",
+  "Red-Teaming and Adversarial Evaluation",
+];
+
+const MIN_RENDERED_PAGES = 16;
 
 const REFERENCE_PATTERNS = [
   /document\s+reference(?:\s+number)?\s*[:\-]\s*\*?\*?\s*([A-Z0-9][A-Z0-9._\-\/]{3,})/i,
@@ -96,47 +134,54 @@ function evidenceTable(sectionLabel) {
 }
 
 /**
- * Build a full-length Annex XI mock that embeds form payload fields into the
- * sections they populate in real generations (3.1 pipeline, 3.3 compute, 2.x params).
+ * Build a full-length Annex XI mock (v1.1 numbering) embedding form fields into
+ * the sections they populate, including Unicode stress in training pipeline/compute.
  */
 function buildFullAnnexXiMockDocument(form) {
   const identity = form.providerLegalIdentity ?? {};
   const authRep = identity.authorisedRepresentative ?? {};
+  const energy = form.energyDisclosures ?? {};
+  const redTeam = form.redTeaming ?? {};
   const intended = form.intendedUseCases ?? {};
   const prohibited = form.prohibitedUseCases ?? {};
   const highRisk = form.highRiskClassification ?? {};
+
+  const redTeamCategories = [
+    ...(redTeam.adversarialCategories ?? []),
+    ...(redTeam.customAdversarialCategories
+      ? redTeam.customAdversarialCategories.split(",").map((c) => c.trim())
+      : []),
+  ].filter(Boolean);
 
   let doc = `# Annex XI Technical Documentation — ${form.modelName}
 
 **Document reference:** JURISAI-2026-001
 
-## 1. Executive Summary
+## 1. Provider Identification
 
-${complianceParagraphs(8, `Model ${form.modelName} (${form.versionNumber}, released ${form.releaseDate}).`)}
-
-${evidenceTable("1.1 Provider Legal Identity")}
-
-Legal entity: ${form.providerName}. Legal form: ${identity.legalForm}. Registered address: ${identity.registeredAddress}. Country of Establishment: ${identity.countryOfEstablishment}. Company registration: ${identity.companyRegistrationNumber}. VAT: ${identity.vatNumber}. Compliance contact: ${identity.complianceContactName}, ${identity.complianceContactRole}, ${identity.complianceContactEmail}.
+Provider legal name: ${identity.legalName || form.providerName}. Trade name: ${identity.tradeName || "(same as legal name)"}. Legal form: ${identity.legalForm}. Registered address: ${identity.registeredAddress}. Country of Establishment: ${identity.countryOfEstablishment}. Provider contact email: ${identity.contactEmail}. Company registration: ${identity.companyRegistrationNumber}. VAT: ${identity.vatNumber}.
 
 Article 54 authorised representative (non-EU provider): ${authRep.name}, ${authRep.address}, ${authRep.contactEmail}.
 
-${complianceParagraphs(6, "Section 1.1 provider legal identity.")}
+${complianceParagraphs(6, "Section 1 provider identification.")}
+${evidenceTable("1.1 Provider Identity Table")}
 
-## 2. Model Architecture and System Design
+## 2. Model Overview
+
+${complianceParagraphs(8, `Model ${form.modelName} (${form.versionNumber}, released ${form.releaseDate}).`)}
+
+## 3. Model Architecture and System Design
 
 Architecture type: ${form.modelArchitecture}. Parameter count: ${form.numberOfParameters}. Modalities: text, code.
 
-${complianceParagraphs(8, "Architecture and parameterisation under Annex XI Section 2.")}
+${complianceParagraphs(8, "Architecture and parameterisation under Annex XI Section 3.")}
+${evidenceTable("3.1 Parameterisation Summary")}
 
-${evidenceTable("2.1 Parameterisation Summary")}
-
-## 3. Training Process
-
-Data sources: ${form.dataSources}. Collection method: ${form.dataCollectionMethod}. Filtering: ${form.filteringPreprocessing}. Human/synthetic ratio: ${form.humanVsSyntheticRatio}.
+## 4. Training Process
 
 ${complianceParagraphs(4, "Training process overview.")}
 
-### 3.1 Training Pipeline
+### 4.1 Training Pipeline
 
 The provider describes the end-to-end training pipeline as follows:
 
@@ -148,64 +193,96 @@ Alignment techniques: ${form.alignmentTechniques}
 
 Pipeline summary line: Pre-training → Supervised fine-tuning ⇒ Alignment optimisation ➔ Safety evaluation.
 
-${complianceParagraphs(6, "Section 3.1 training pipeline stages and controls.")}
+${complianceParagraphs(6, "Section 4.1 training pipeline stages and controls.")}
+${evidenceTable("4.2 Training Controls Matrix")}
 
-${evidenceTable("3.2 Training Controls Matrix")}
-
-### 3.3 Compute Estimate
+### 4.3 Compute Estimate
 
 Total training compute reported by the provider: ${form.totalFlopsEstimate}.
 
 Secondary estimate notation: 10²⁵ FLOPs total with 1 × 10²³ GPU-hours equivalent load.
 
-${complianceParagraphs(6, "Section 3.3 compute estimation methodology.")}
+${complianceParagraphs(6, "Section 4.3 compute estimation methodology.")}
 
-## 4. Training Data Governance
+## 5. Training Data Governance
+
+Data sources: ${form.dataSources}. Collection method: ${form.dataCollectionMethod}. Filtering: ${form.filteringPreprocessing}. Human/synthetic ratio: ${form.humanVsSyntheticRatio}.
 
 ${complianceParagraphs(10, "Training data governance and provenance.")}
-${evidenceTable("4.2 Data Provenance Controls")}
+${evidenceTable("5.2 Data Provenance Controls")}
 ${complianceParagraphs(8, "Data licensing and retention.")}
-${evidenceTable("4.3 Filtering and Preprocessing")}
+${evidenceTable("5.3 Filtering and Preprocessing")}
 ${complianceParagraphs(8, "Synthetic data controls.")}
-${evidenceTable("4.4 Human vs Synthetic Ratio")}
+${evidenceTable("5.4 Human vs Synthetic Ratio")}
 
-## 5. Evaluation and Benchmarking
+## 6. Energy and Compute Disclosures
+
+Total training energy consumed: ${energy.totalTrainingEnergyKwh} kWh.
+
+Training compute: ${energy.trainingComputeValue} ${energy.trainingComputeUnit}.
+
+Training infrastructure locations: ${energy.trainingInfrastructureLocations}.
+
+Estimated CO2e emissions: ${energy.estimatedCo2eTonnes} tonnes.
+
+Energy methodology: ${energy.energyMethodology}.
+
+Inference energy per query: ${energy.inferenceEnergyPerQuery}.
+
+${complianceParagraphs(8, "Section 6 energy and carbon disclosure methodology.")}
+${evidenceTable("6.1 Energy Disclosure Summary")}
+
+## 7. Evaluation and Benchmarking
 
 Benchmarks: ${form.benchmarksUsed}. Results: ${form.evaluationResultsSummary}. Known limitations: ${form.knownLimitations}.
 
 ${complianceParagraphs(10, "Evaluation methodology.")}
-${evidenceTable("5.2 Benchmark Results")}
+${evidenceTable("7.2 Benchmark Results")}
 ${complianceParagraphs(8, "Limitation management.")}
 
-## 6. Risk Management and Systemic Risk
+## 8. Red-Teaming and Adversarial Evaluation
 
-${complianceParagraphs(10, "Systemic risk assessment.")}
-${evidenceTable("6.2 Systemic Risk Threshold Analysis")}
+Red-teaming approach: ${redTeam.approach}.
 
-## 7. Intended Purpose and Use Restrictions
+Adversarial categories covered: ${redTeamCategories.join(", ")}.
 
-### 7.1 Intended Use Cases
+Team composition: ${redTeam.teamComposition}.
+
+Methodology: ${redTeam.methodologySummary}.
+
+Findings and mitigations: ${redTeam.findingsAndMitigations}.
+
+Residual risks: ${redTeam.residualRisks}.
+
+Exercise dates: ${redTeam.exerciseDates}.
+
+${complianceParagraphs(8, "Section 8 red-teaming and adversarial evaluation.")}
+${evidenceTable("8.1 Red-Team Exercise Summary")}
+
+## 9. Intended Purpose and Use Restrictions
+
+### 9.1 Intended Use Cases
 
 Selected categories: ${(intended.selectedCategories ?? []).join(", ")}.
 Additional description: ${intended.customDescription ?? "(not provided)"}.
 
-${complianceParagraphs(6, "Section 7.1 intended use.")}
+${complianceParagraphs(6, "Section 9.1 intended use.")}
 
-### 7.2 Prohibited Use Cases
+### 9.2 Prohibited Use Cases
 
 Selected prohibitions: ${(prohibited.selectedCategories ?? []).join(", ")}.
 Additional restrictions: ${prohibited.customDescription ?? "(not provided)"}.
 
-${complianceParagraphs(6, "Section 7.2 prohibited use.")}
+${complianceParagraphs(6, "Section 9.2 prohibited use.")}
 
-### 7.3 High-Risk Classification
+### 9.3 High-Risk Classification
 
 High-risk: ${highRisk.isHighRisk ? "Yes" : "No"}. Justification: ${highRisk.notHighRiskJustification ?? "(not provided)"}.
 
-${complianceParagraphs(6, "Section 7.3 Annex III classification.")}
+${complianceParagraphs(6, "Section 9.3 Annex III classification.")}
 `;
 
-  for (let section = 8; section <= 14; section++) {
+  for (let section = 10; section <= 14; section++) {
     doc += `\n## ${section}. Supplementary Compliance Annex ${section}\n\n`;
     doc += complianceParagraphs(10, `Supplementary Annex XI section ${section}.`);
     doc += evidenceTable(`${section}.2 Supporting Evidence Table`);
@@ -224,15 +301,23 @@ function installAnthropicMock(formPayload) {
 
       assert.ok(
         userContent.includes(formPayload.preTrainingDescription),
-        "generateAnnexXiDocument prompt must include section 3.1 pipeline field with Unicode",
+        "generateAnnexXiDocument prompt must include training pipeline field with Unicode",
       );
       assert.ok(
         userContent.includes(formPayload.totalFlopsEstimate),
-        "generateAnnexXiDocument prompt must include section 3.3 compute field with Unicode",
+        "generateAnnexXiDocument prompt must include compute field with Unicode",
       );
       assert.ok(
-        userContent.includes(formPayload.numberOfParameters),
-        "generateAnnexXiDocument prompt must include parameter count field with Unicode",
+        userContent.includes(formPayload.energyDisclosures.totalTrainingEnergyKwh),
+        "generateAnnexXiDocument prompt must include energy disclosure fields",
+      );
+      assert.ok(
+        userContent.includes(formPayload.redTeaming.approach),
+        "generateAnnexXiDocument prompt must include red-teaming fields",
+      );
+      assert.ok(
+        userContent.includes(formPayload.providerLegalIdentity.legalName),
+        "generateAnnexXiDocument prompt must include provider legal name",
       );
       assert.ok(
         userContent.includes(formPayload.providerLegalIdentity.countryOfEstablishment),
@@ -241,10 +326,17 @@ function installAnthropicMock(formPayload) {
 
       const document = buildFullAnnexXiMockDocument(formPayload);
 
+      for (const heading of REQUIRED_SECTION_HEADINGS) {
+        assert.ok(
+          document.includes(heading),
+          `mock document must contain section heading: ${heading}`,
+        );
+      }
+
       assert.match(
         document,
-        /### 3\.1 Training Pipeline[\s\S]*→[\s\S]*### 3\.3 Compute Estimate[\s\S]*²/,
-        "mock document must embed Unicode pipeline/compute fields inside sections 3.1 and 3.3",
+        /## 4\. Training Process[\s\S]*### 4\.1 Training Pipeline[\s\S]*→[\s\S]*### 4\.3 Compute Estimate[\s\S]*²/,
+        "mock document must embed Unicode pipeline/compute fields inside training sections",
       );
 
       return {
@@ -309,6 +401,16 @@ function assertPdfDrawAudit(drawn, rightEdge) {
   assert.equal(drawn[0].rightEdge, rightEdge);
 }
 
+function assertSectionHeadingsInPdf(drawn, pageCount) {
+  const allText = drawn.map((d) => d.text).join("\n");
+  for (const heading of REQUIRED_SECTION_HEADINGS) {
+    assert.ok(
+      allText.includes(heading),
+      `missing section heading in PDF output: "${heading}" (audited ${pageCount} pages)`,
+    );
+  }
+}
+
 test("PDF render pipeline: India generation + Unicode stress -> ASCII-only, in-margin text", async () => {
   const restoreFetch = installAnthropicMock(INDIA_PAYLOAD);
   const previousKey = process.env.ANTHROPIC_API_KEY;
@@ -320,23 +422,29 @@ test("PDF render pipeline: India generation + Unicode stress -> ASCII-only, in-m
       INDIA_PAYLOAD,
     );
 
+    for (const heading of REQUIRED_SECTION_HEADINGS) {
+      assert.ok(
+        generatedDocument.includes(heading),
+        `generated document missing section heading: ${heading}`,
+      );
+    }
+
     assert.ok(
       generatedDocument.includes(INDIA_PAYLOAD.preTrainingDescription),
       "generated document must embed preTrainingDescription Unicode inside body text",
     );
     assert.ok(
-      generatedDocument.includes(INDIA_PAYLOAD.totalFlopsEstimate),
-      "generated document must embed totalFlopsEstimate Unicode inside body text",
+      generatedDocument.includes(INDIA_PAYLOAD.energyDisclosures.energyMethodology),
+      "generated document must embed energy methodology",
+    );
+    assert.ok(
+      generatedDocument.includes(INDIA_PAYLOAD.redTeaming.findingsAndMitigations),
+      "generated document must embed red-teaming findings",
     );
     assert.match(
       generatedDocument,
-      /### 3\.1 Training Pipeline/,
-      "generated document must reach section 3.1",
-    );
-    assert.match(
-      generatedDocument,
-      /### 3\.3 Compute Estimate/,
-      "generated document must reach section 3.3",
+      /### 4\.1 Training Pipeline/,
+      "generated document must reach training pipeline subsection",
     );
 
     const { drawn, pageCount } = auditPdfRender(
@@ -350,22 +458,26 @@ test("PDF render pipeline: India generation + Unicode stress -> ASCII-only, in-m
     );
 
     assertPdfDrawAudit(drawn, drawn[0]?.rightEdge ?? 0);
+    assertSectionHeadingsInPdf(drawn, pageCount);
 
     const pipelineLine = drawn.find((d) =>
       /Pre-training\s*->\s*supervised fine-tuning/i.test(d.text),
     );
     assert.ok(
       pipelineLine,
-      `expected sanitized section 3.1 pipeline line in PDF output (pages audited: ${pageCount})`,
+      `expected sanitized training pipeline line in PDF output (pages audited: ${pageCount})`,
     );
 
     const hasFlops25 = drawn.some((d) => /10\^25/.test(d.text));
     const hasMultiply23 = drawn.some((d) => /1 x 10\^23/i.test(d.text));
-    assert.ok(hasFlops25, "expected 10^25 in PDF output from section 3.3");
-    assert.ok(hasMultiply23, "expected 1 x 10^23 in PDF output from section 3.3");
+    assert.ok(hasFlops25, "expected 10^25 in PDF output from compute section");
+    assert.ok(hasMultiply23, "expected 1 x 10^23 in PDF output from compute section");
+
+    const hasCo2e = drawn.some((d) => /CO2e/i.test(d.text));
+    assert.ok(hasCo2e, "expected CO2e (ASCII) in PDF energy section");
 
     console.log(
-      `PDF render audit passed: ${drawn.length} doc.text calls across ${pageCount} pages (minimum ${MIN_RENDERED_PAGES}), 0 non-ASCII glyphs, 0 margin overflows`,
+      `PDF render audit passed: ${drawn.length} doc.text calls across ${pageCount} pages (minimum ${MIN_RENDERED_PAGES}), 0 non-ASCII glyphs, 0 margin overflows, all v1.1 section headings present`,
     );
   } finally {
     process.env.ANTHROPIC_API_KEY = previousKey;

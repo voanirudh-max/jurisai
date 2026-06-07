@@ -67,6 +67,26 @@ const ANNEX_III_CATEGORIES = [
   "Justice/democratic processes",
 ];
 
+const RED_TEAM_CATEGORIES = [
+  "Bias",
+  "Jailbreak",
+  "Prompt injection",
+  "Harmful content",
+  "Factuality",
+  "CBRN",
+  "Cybersecurity",
+  "Persuasion",
+];
+
+const TRAINING_COMPUTE_UNITS = ["GPU-hours", "FLOPs"];
+
+const RED_TEAM_APPROACHES = [
+  { value: "internal", label: "Internal" },
+  { value: "external", label: "External" },
+  { value: "both", label: "Both" },
+  { value: "none", label: "None" },
+];
+
 const EU_MEMBER_STATES = [
   "Austria",
   "Belgium",
@@ -299,9 +319,12 @@ const initialForm = {
   modelName: "",
   providerName: "",
   providerLegalIdentity: {
+    legalName: "",
+    tradeName: "",
     legalForm: "",
     registeredAddress: "",
     countryOfEstablishment: "",
+    contactEmail: "",
     companyRegistrationNumber: "",
     vatNumber: "",
     complianceContactName: "",
@@ -312,6 +335,25 @@ const initialForm = {
       address: "",
       contactEmail: "",
     },
+  },
+  energyDisclosures: {
+    totalTrainingEnergyKwh: "",
+    trainingComputeValue: "",
+    trainingComputeUnit: "GPU-hours",
+    trainingInfrastructureLocations: "",
+    estimatedCo2eTonnes: "",
+    energyMethodology: "",
+    inferenceEnergyPerQuery: "",
+  },
+  redTeaming: {
+    approach: "both",
+    adversarialCategories: [],
+    customAdversarialCategories: "",
+    teamComposition: "",
+    methodologySummary: "",
+    findingsAndMitigations: "",
+    residualRisks: "",
+    exerciseDates: "",
   },
   versionNumber: "",
   releaseDate: "",
@@ -544,6 +586,42 @@ export default function GeneratePage() {
         notHighRiskJustification: value,
       },
     }));
+  }
+
+  function setEnergyField(field, value) {
+    setForm((prev) => ({
+      ...prev,
+      energyDisclosures: {
+        ...prev.energyDisclosures,
+        [field]: value,
+      },
+    }));
+  }
+
+  function setRedTeamField(field, value) {
+    setForm((prev) => ({
+      ...prev,
+      redTeaming: {
+        ...prev.redTeaming,
+        [field]: value,
+      },
+    }));
+  }
+
+  function toggleRedTeamCategory(category) {
+    setForm((prev) => {
+      const current = prev.redTeaming.adversarialCategories;
+      const next = current.includes(category)
+        ? current.filter((c) => c !== category)
+        : [...current, category];
+      return {
+        ...prev,
+        redTeaming: {
+          ...prev.redTeaming,
+          adversarialCategories: next,
+        },
+      };
+    });
   }
 
   async function handleDownloadPdf() {
@@ -801,24 +879,46 @@ export default function GeneratePage() {
                       placeholder="e.g. Juris-LM 7B"
                     />
                   </div>
+                  <div className="sm:col-span-2 border-t border-[#1A1A1A] pt-5">
+                    <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                      Provider Identification
+                    </h3>
+                    <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                      Section 1 of the generated Annex XI document. Required before any model description.
+                    </p>
+                  </div>
                   <div className="sm:col-span-2">
-                    <label htmlFor="providerName" className={labelClass}>Provider name</label>
+                    <label htmlFor="legalName" className={labelClass}>Provider legal name</label>
+                    <input
+                      id="legalName"
+                      type="text"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.legalName}
+                      onChange={(e) => setLegalIdentityField("legalName", e.target.value)}
+                      placeholder="Registered legal entity name"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="tradeName" className={labelClass}>Trade name / brand (if different)</label>
+                    <input
+                      id="tradeName"
+                      type="text"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.tradeName}
+                      onChange={(e) => setLegalIdentityField("tradeName", e.target.value)}
+                      placeholder="e.g. JurisAI (optional)"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="providerName" className={labelClass}>Provider name (display)</label>
                     <input
                       id="providerName"
                       type="text"
                       className={inputClass}
                       value={form.providerName}
                       onChange={(e) => updateField("providerName", e.target.value)}
-                      placeholder="Legal entity or product owner"
+                      placeholder="Name used in document header if different from legal name"
                     />
-                  </div>
-                  <div className="sm:col-span-2 border-t border-[#1A1A1A] pt-5">
-                    <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
-                      Provider Legal Identity
-                    </h3>
-                    <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
-                      The legal entity name is captured above in Provider name.
-                    </p>
                   </div>
                   <div>
                     <label htmlFor="legalForm" className={labelClass}>Legal form</label>
@@ -903,7 +1003,18 @@ export default function GeneratePage() {
                       placeholder="e.g. Head of Compliance"
                     />
                   </div>
-                  <div className="sm:col-span-2">
+                  <div>
+                    <label htmlFor="contactEmail" className={labelClass}>Provider contact email</label>
+                    <input
+                      id="contactEmail"
+                      type="email"
+                      className={inputClass}
+                      value={form.providerLegalIdentity.contactEmail}
+                      onChange={(e) => setLegalIdentityField("contactEmail", e.target.value)}
+                      placeholder="contact@example.com"
+                    />
+                  </div>
+                  <div>
                     <label htmlFor="complianceContactEmail" className={labelClass}>Compliance contact email</label>
                     <input
                       id="complianceContactEmail"
@@ -1142,6 +1253,100 @@ export default function GeneratePage() {
                     placeholder="e.g. 85% human-originated / 15% synthetic"
                   />
                 </div>
+
+                <div className="border-t border-[#1A1A1A] pt-6">
+                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                    Energy and Compute Disclosures
+                  </h3>
+                  <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                    Annex XI Section 1(j) — training energy consumption and compute.
+                  </p>
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="totalTrainingEnergyKwh" className={labelClass}>Total training energy (kWh)</label>
+                    <input
+                      id="totalTrainingEnergyKwh"
+                      type="number"
+                      min="0"
+                      step="any"
+                      className={inputClass}
+                      value={form.energyDisclosures.totalTrainingEnergyKwh}
+                      onChange={(e) => setEnergyField("totalTrainingEnergyKwh", e.target.value)}
+                      placeholder="e.g. 1250000"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="trainingComputeValue" className={labelClass}>Training compute</label>
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        id="trainingComputeValue"
+                        type="number"
+                        min="0"
+                        step="any"
+                        className={`${inputClass} flex-1`}
+                        value={form.energyDisclosures.trainingComputeValue}
+                        onChange={(e) => setEnergyField("trainingComputeValue", e.target.value)}
+                        placeholder="e.g. 1.2e23"
+                      />
+                      <select
+                        className={`${inputClass} w-[140px]`}
+                        value={form.energyDisclosures.trainingComputeUnit}
+                        onChange={(e) => setEnergyField("trainingComputeUnit", e.target.value)}
+                      >
+                        {TRAINING_COMPUTE_UNITS.map((unit) => (
+                          <option key={unit} value={unit}>{unit}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="trainingInfrastructureLocations" className={labelClass}>Training infrastructure / data center location(s)</label>
+                    <textarea
+                      id="trainingInfrastructureLocations"
+                      rows={2}
+                      className={`${inputClass} min-h-[72px] resize-y`}
+                      value={form.energyDisclosures.trainingInfrastructureLocations}
+                      onChange={(e) => setEnergyField("trainingInfrastructureLocations", e.target.value)}
+                      placeholder="e.g. Hyderabad, India; Frankfurt, Germany"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="estimatedCo2eTonnes" className={labelClass}>Estimated CO2e emissions (tonnes, optional)</label>
+                    <input
+                      id="estimatedCo2eTonnes"
+                      type="number"
+                      min="0"
+                      step="any"
+                      className={inputClass}
+                      value={form.energyDisclosures.estimatedCo2eTonnes}
+                      onChange={(e) => setEnergyField("estimatedCo2eTonnes", e.target.value)}
+                      placeholder="e.g. 420"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="inferenceEnergyPerQuery" className={labelClass}>Inference energy per query (optional)</label>
+                    <input
+                      id="inferenceEnergyPerQuery"
+                      type="text"
+                      className={inputClass}
+                      value={form.energyDisclosures.inferenceEnergyPerQuery}
+                      onChange={(e) => setEnergyField("inferenceEnergyPerQuery", e.target.value)}
+                      placeholder="e.g. ~0.8 Wh per 1k-token response"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="energyMethodology" className={labelClass}>Methodology for energy estimate</label>
+                    <textarea
+                      id="energyMethodology"
+                      rows={3}
+                      className={`${inputClass} min-h-[88px] resize-y`}
+                      value={form.energyDisclosures.energyMethodology}
+                      onChange={(e) => setEnergyField("energyMethodology", e.target.value)}
+                      placeholder="e.g. GPU-hours x hardware TDP x PUE x grid carbon intensity"
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1181,6 +1386,120 @@ export default function GeneratePage() {
                     value={form.knownLimitations}
                     onChange={(e) => updateField("knownLimitations", e.target.value)}
                     placeholder="Failure modes, coverage gaps, brittleness…"
+                  />
+                </div>
+
+                <div className="border-t border-[#1A1A1A] pt-6">
+                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                    Red-Teaming and Adversarial Evaluation
+                  </h3>
+                  <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                    Annex XI Section 2 — internal and external adversarial testing measures.
+                  </p>
+                </div>
+                <div>
+                  <label htmlFor="redTeamApproach" className={labelClass}>Red-teaming approach</label>
+                  <select
+                    id="redTeamApproach"
+                    className={inputClass}
+                    value={form.redTeaming.approach}
+                    onChange={(e) => setRedTeamField("approach", e.target.value)}
+                  >
+                    {RED_TEAM_APPROACHES.map(({ value, label }) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+                <fieldset className="min-w-0 border-0 p-0">
+                  <legend className={labelClass}>Adversarial categories covered</legend>
+                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {RED_TEAM_CATEGORIES.map((category) => {
+                      const checked = form.redTeaming.adversarialCategories.includes(category);
+                      return (
+                        <label
+                          key={category}
+                          className={`flex cursor-pointer items-start gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal leading-snug transition-colors ${
+                            checked
+                              ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
+                              : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleRedTeamCategory(category)}
+                            className="juris-check mt-0.5"
+                          />
+                          <span>{category}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+                <div>
+                  <label htmlFor="customAdversarialCategories" className={labelClass}>Additional adversarial categories (optional)</label>
+                  <input
+                    id="customAdversarialCategories"
+                    type="text"
+                    className={inputClass}
+                    value={form.redTeaming.customAdversarialCategories}
+                    onChange={(e) => setRedTeamField("customAdversarialCategories", e.target.value)}
+                    placeholder="Comma-separated custom categories"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="teamComposition" className={labelClass}>Red-team composition and qualifications</label>
+                  <textarea
+                    id="teamComposition"
+                    rows={3}
+                    className={`${inputClass} min-h-[88px] resize-y`}
+                    value={form.redTeaming.teamComposition}
+                    onChange={(e) => setRedTeamField("teamComposition", e.target.value)}
+                    placeholder="Internal security engineers, external penetration testers, domain experts…"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="methodologySummary" className={labelClass}>Methodology summary</label>
+                  <textarea
+                    id="methodologySummary"
+                    rows={3}
+                    className={`${inputClass} min-h-[88px] resize-y`}
+                    value={form.redTeaming.methodologySummary}
+                    onChange={(e) => setRedTeamField("methodologySummary", e.target.value)}
+                    placeholder="Attack libraries, scenario design, evaluation rubrics…"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="findingsAndMitigations" className={labelClass}>Summary of findings and mitigations</label>
+                  <textarea
+                    id="findingsAndMitigations"
+                    rows={4}
+                    className={`${inputClass} min-h-[100px] resize-y`}
+                    value={form.redTeaming.findingsAndMitigations}
+                    onChange={(e) => setRedTeamField("findingsAndMitigations", e.target.value)}
+                    placeholder="Key vulnerabilities identified and remediations applied…"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="residualRisks" className={labelClass}>Residual risks identified</label>
+                  <textarea
+                    id="residualRisks"
+                    rows={3}
+                    className={`${inputClass} min-h-[88px] resize-y`}
+                    value={form.redTeaming.residualRisks}
+                    onChange={(e) => setRedTeamField("residualRisks", e.target.value)}
+                    placeholder="Risks accepted or deferred with rationale…"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="exerciseDates" className={labelClass}>Date(s) of red-teaming exercise</label>
+                  <input
+                    id="exerciseDates"
+                    type="text"
+                    className={inputClass}
+                    value={form.redTeaming.exerciseDates}
+                    onChange={(e) => setRedTeamField("exerciseDates", e.target.value)}
+                    placeholder="e.g. 2026-03-15 to 2026-04-02"
                   />
                 </div>
               </div>
