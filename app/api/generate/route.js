@@ -4,6 +4,8 @@ import {
   generateAnnexXiDocument,
 } from "../../../lib/generateAnnexXiDocument.js";
 
+export const maxDuration = 300;
+
 export async function POST(request) {
   try {
     let body;
@@ -17,10 +19,12 @@ export async function POST(request) {
     return NextResponse.json({ document });
   } catch (err) {
     if (err instanceof GenerateAnnexXiError) {
+      console.error("[api/generate] Generation failed:", err.message);
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
     const message =
       err instanceof Error ? err.message : "Unexpected server error";
+    console.error("[api/generate] Unexpected error:", err);
     return NextResponse.json(
       { error: `Server error: ${message}` },
       { status: 500 },
