@@ -230,7 +230,12 @@ Energy methodology: ${energy.energyMethodology}.
 Inference energy per query: ${energy.inferenceEnergyPerQuery}.
 
 ${complianceParagraphs(8, "Section 6 energy and carbon disclosure methodology.")}
-${evidenceTable("6.1 Energy Disclosure Summary")}
+
+### 6.1 Energy Methodology
+
+Placeholder LLM energy narrative.
+
+${evidenceTable("6.2 Energy Disclosure Summary")}
 
 ## 7. Evaluation and Benchmarking
 
@@ -440,6 +445,16 @@ test("PDF render pipeline: India generation + Unicode stress -> ASCII-only, in-m
     assert.ok(
       generatedDocument.includes(INDIA_PAYLOAD.redTeaming.findingsAndMitigations),
       "generated document must embed red-teaming findings",
+    );
+    assert.match(
+      generatedDocument,
+      /Article 5\(1\)\(c\).*Social scoring/s,
+      "generated document must contain canonical Article 5(1)(c) social scoring citation",
+    );
+    assert.match(
+      generatedDocument,
+      /Step 1 — GPU draw/,
+      "generated document must contain server-computed energy methodology steps",
     );
     assert.match(
       generatedDocument,

@@ -427,6 +427,7 @@ export default function GeneratePage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initialForm);
   const [generateLoading, setGenerateLoading] = useState(false);
+  const [generateStatus, setGenerateStatus] = useState("Generating...");
   const [generateError, setGenerateError] = useState(null);
   const [generatedDocument, setGeneratedDocument] = useState("");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
@@ -657,7 +658,9 @@ export default function GeneratePage() {
 
     setGenerateError(null);
     setGenerateLoading(true);
-    try {
+    setGenerateStatus("Generating...");
+
+    async function requestGeneration() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -665,14 +668,40 @@ export default function GeneratePage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(
-          typeof data.error === "string" ? data.error : "Generation failed",
-        );
+        const category =
+          res.status === 429
+            ? "Rate limited"
+            : res.status >= 500
+              ? "Server error"
+              : res.status === 502
+                ? "Upstream API error"
+                : "Generation failed";
+        const detail =
+          typeof data.error === "string" ? data.error : "Unknown error";
+        const err = new Error(`${category}: ${detail}`);
+        err.retryable = res.status === 429 || res.status >= 500;
+        throw err;
       }
       if (typeof data.document !== "string") {
-        throw new Error("Invalid response from server");
+        throw new Error("Invalid response: missing document payload");
       }
-      setGeneratedDocument(data.document);
+      return data.document;
+    }
+
+    try {
+      let document;
+      try {
+        document = await requestGeneration();
+      } catch (firstErr) {
+        if (firstErr instanceof Error && firstErr.retryable) {
+          setGenerateStatus("Retrying...");
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          document = await requestGeneration();
+        } else {
+          throw firstErr;
+        }
+      }
+      setGeneratedDocument(document);
       setStep(RESULT_STEP);
     } catch (err) {
       setGenerateError(
@@ -680,6 +709,7 @@ export default function GeneratePage() {
       );
     } finally {
       setGenerateLoading(false);
+      setGenerateStatus("Generating...");
     }
   }
 
@@ -1805,7 +1835,7 @@ export default function GeneratePage() {
                   disabled={generateLoading}
                   className={`${mono} rounded-none bg-[#FFFFFF] px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#000000] transition-colors hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-70`}
                 >
-                  {generateLoading ? "Generating..." : "Submit →"}
+                  {generateLoading ? generateStatus : "Submit →"}
                 </button>
               )}
             </div>
