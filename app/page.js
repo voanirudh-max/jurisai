@@ -1,21 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-const TARGET_MS = new Date(2026, 7, 2, 0, 0, 0, 0).getTime();
-
-function countdownParts(nowMs) {
-  const diff = Math.max(0, TARGET_MS - nowMs);
-  const total = Math.floor(diff / 1000);
-  return {
-    days: Math.floor(total / 86400),
-    hours: Math.floor((total % 86400) / 3600),
-    minutes: Math.floor((total % 3600) / 60),
-    seconds: total % 60,
-    expired: nowMs >= TARGET_MS,
-  };
-}
+import { useState } from "react";
 
 const mono = "font-mono-legal";
 
@@ -91,8 +77,6 @@ function IconCheck() {
 }
 
 export default function Home() {
-  const [now, setNow] = useState(() => Date.now());
-
   const [riskQ1, setRiskQ1] = useState(null);
   const [riskQ2, setRiskQ2] = useState(null);
   const [riskQ3, setRiskQ3] = useState(null);
@@ -103,28 +87,6 @@ export default function Home() {
   const [faqOpen, setFaqOpen] = useState(() =>
     Object.fromEntries(FAQ_ITEMS.map((_, i) => [String(i), false])),
   );
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  const { days, hours, minutes, seconds, expired } = countdownParts(now);
-  const pad = (n) => String(n).padStart(2, "0");
-
-  const timeUnits = expired
-    ? [
-        { label: "Days", value: "0" },
-        { label: "Hours", value: "00" },
-        { label: "Minutes", value: "00" },
-        { label: "Seconds", value: "00" },
-      ]
-    : [
-        { label: "Days", value: String(days) },
-        { label: "Hours", value: pad(hours) },
-        { label: "Minutes", value: pad(minutes) },
-        { label: "Seconds", value: pad(seconds) },
-      ];
 
   const flopsAbove10_23 =
     riskQ2 === "band23" || riskQ2 === "band24" || riskQ2 === "above25";
@@ -291,34 +253,24 @@ export default function Home() {
           </p>
         </section>
 
-        {/* Countdown */}
+        {/* Enforcement status */}
         <section className="border-y border-[#222222] bg-[#0A0A0A] px-6 py-12 sm:px-12">
           <div className="mx-auto max-w-[1100px] border border-[#222222] bg-[#111111] px-6 py-10 sm:px-12">
-            <p className={labelClass + " text-center"}>
-              Time remaining until high-risk AI system deadline
-            </p>
+            <h2 className="text-center text-[24px] font-semibold leading-tight tracking-tight text-[#FFFFFF] sm:text-[32px]">
+              GPAI obligations are not coming. They&apos;re here.
+            </h2>
 
-            <div
-              className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4"
-              aria-live="polite"
-            >
-              {timeUnits.map((u) => (
-                <div
-                  key={u.label}
-                  className="flex flex-col items-center justify-center border border-[#222222] bg-[#0A0A0A] px-4 py-5 sm:px-6"
-                >
-                  <span className={`${mono} text-[40px] font-bold leading-none text-[#FFFFFF] sm:text-[52px]`}>
-                    {u.value}
-                  </span>
-                  <span className={`${mono} mt-3 text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
-                    {u.label}
-                  </span>
-                </div>
-              ))}
+            <div className="mt-8 space-y-3 text-center">
+              <p className={`${mono} text-[12px] uppercase tracking-[0.1em] leading-relaxed text-[#FFFFFF] sm:text-[13px]`}>
+                Articles 51–56 enforced since August 2, 2025
+              </p>
+              <p className={`${mono} text-[12px] uppercase tracking-[0.1em] leading-relaxed text-[#888888] sm:text-[13px]`}>
+                Non-compliance: up to 3% of global annual turnover or €15M, whichever is higher (Article 101)
+              </p>
             </div>
 
-            <p className={`${mono} mt-8 text-center text-[11px] uppercase tracking-[0.08em] leading-relaxed text-[#666666] sm:px-4`}>
-              GPAI obligations enforced since August 2, 2025 · High-risk provisions enforce August 2, 2026
+            <p className={`${mono} mx-auto mt-8 max-w-[820px] text-center text-[10px] uppercase tracking-[0.08em] leading-relaxed text-[#444444] sm:px-4`}>
+              High-risk system provisions deferred to December 2, 2027 under the May 2026 Digital Omnibus agreement — GPAI provider obligations were NOT delayed.
             </p>
           </div>
         </section>
