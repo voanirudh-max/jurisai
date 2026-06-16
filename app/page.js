@@ -596,7 +596,7 @@ export default function Home() {
               <tbody>
                 {[
                   ["Time to generate Annex XI documentation", "3–6 months with lawyers", "Under 10 minutes"],
-                  ["Cost", "€5,000–€20,000 legal fees", "€299 one-time"],
+                  ["Cost", "€5,000–€20,000 legal fees", "From €2,000/month per model"],
                   ["Regulation accuracy", "Depends on lawyer's AI Act knowledge", "Built on 50-node GPAI ontology"],
                   ["Article 53 coverage", "Partial — most lawyers miss sub-obligations", "Complete — all 4 Article 53(1) obligations"],
                   ["Update when model changes", "Pay lawyers again", "Regenerate in minutes"],
