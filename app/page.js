@@ -196,6 +196,7 @@ export default function Home() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
+          html { scroll-behavior: smooth; }
           @keyframes juris-hero-fade-up {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -279,7 +280,7 @@ export default function Home() {
               Generate Annex XI Documentation →
             </Link>
             <Link
-              href="/generate"
+              href="#what-jurisai-generates"
               className="juris-cta-secondary inline-flex items-center justify-center rounded-none border border-[#333333] bg-transparent px-5 py-3 text-center text-[13px] font-medium uppercase tracking-[0.08em] text-[#888888] sm:min-w-[240px]"
             >
               See what Annex XI requires
@@ -324,7 +325,10 @@ export default function Home() {
         </section>
 
         {/* Obligation cards */}
-        <section className="mx-auto max-w-[1200px] px-6 py-16 sm:px-12 sm:py-20">
+        <section
+          id="what-jurisai-generates"
+          className="mx-auto max-w-[1200px] px-6 py-16 sm:px-12 sm:py-20 scroll-mt-6"
+        >
           <p className={labelClass}>What JurisAI generates</p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3 md:gap-6">
@@ -686,45 +690,29 @@ export default function Home() {
                 {
                   quote:
                     "The GPAI documentation gap is real. Most providers have no idea what Annex XI requires until an audit reveals it. A tool that generates this automatically is exactly what the market needs.",
-                  initials: "AM",
-                  name: "A.M.",
                   role: "AI Audit Methodology Developer",
                 },
                 {
                   quote:
                     "Awareness is the first barrier — most AI companies don't know they have an obligation at all. Once they understand, speed to documentation is everything.",
-                  initials: "EU",
-                  name: "E.U.",
                   role: "AI Governance & Compliance Consultant",
                 },
                 {
                   quote:
                     "The Article 53 documentation stack is non-trivial. Getting it right requires understanding 9 mandatory Annex XI categories that most compliance generalists overlook.",
-                  initials: "ND",
-                  name: "N.D.",
                   role: "AI Governance Founder",
                 },
               ].map((t) => (
                 <article
-                  key={t.initials}
+                  key={t.role}
                   className="juris-card flex flex-col border border-[#222222] bg-[#111111] p-[24px]"
                 >
                   <p className="flex-1 text-[14px] italic leading-[1.7] text-[#FFFFFF]">
                     “{t.quote}”
                   </p>
-                  <div className="mt-6 flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#222222] bg-[#1A1A1A] text-[11px] font-medium text-[#888888]">
-                      {t.initials}
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-semibold text-[#FFFFFF]">
-                        {t.name}
-                      </p>
-                      <p className={`${mono} mt-0.5 text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
-                        {t.role}
-                      </p>
-                    </div>
-                  </div>
+                  <p className={`${mono} mt-6 text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
+                    {t.role}
+                  </p>
                 </article>
               ))}
             </div>
