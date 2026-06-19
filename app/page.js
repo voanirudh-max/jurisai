@@ -17,8 +17,6 @@ function countdownParts(nowMs) {
   };
 }
 
-const mono = "font-mono-legal";
-
 const FLOP_TIERS = {
   under: "Under 10²³ FLOPs",
   band23: "10²³–10²⁴ FLOPs",
@@ -56,7 +54,7 @@ const FAQ_ITEMS = [
 function IconX() {
   return (
     <svg
-      className="mt-0.5 h-4 w-4 shrink-0 text-[#333333]"
+      className="mt-0.5 h-4 w-4 shrink-0 text-dim"
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden
@@ -74,7 +72,7 @@ function IconX() {
 function IconCheck() {
   return (
     <svg
-      className="mt-0.5 h-4 w-4 shrink-0 text-[#FFFFFF]"
+      className="mt-0.5 h-4 w-4 shrink-0 text-accent"
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden
@@ -87,6 +85,82 @@ function IconCheck() {
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+function PlaceholderBar({ className = "" }) {
+  return (
+    <div
+      className={`h-2 rounded-sm bg-placeholder ${className}`}
+      aria-hidden
+    />
+  );
+}
+
+/** TODO: swap this CSS preview for a real screenshot of a generated PDF. */
+function HeroDocumentPreview() {
+  return (
+    <div className="relative mx-auto w-full max-w-[420px] lg:max-w-none">
+      <div
+        className="absolute inset-x-3 top-3 bottom-[-8px] rounded-lg bg-paper-shadow"
+        aria-hidden
+      />
+      <div className="relative overflow-hidden rounded-lg border border-hairline border-t-[3px] border-t-accent bg-surface p-[18px]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[9px] font-medium uppercase tracking-[0.08em] text-dim">
+              Regulation (EU) 2024/1689 · Art. 53(1)(a)
+            </p>
+            <p className="font-serif mt-1 text-[14px] font-medium leading-snug text-ink">
+              Annex XI Technical Documentation
+            </p>
+          </div>
+          <span className="shrink-0 rounded px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.08em] text-accent bg-accent-tint">
+            READY
+          </span>
+        </div>
+
+        <div className="mt-4 space-y-0 divide-y divide-hairline">
+          <div className="py-3">
+            <p className="text-[11px] font-medium text-ink">
+              1 · Provider Identification
+            </p>
+            <PlaceholderBar className="mt-2 w-full" />
+            <PlaceholderBar className="mt-1.5 w-[85%]" />
+          </div>
+
+          <div className="border-l-2 border-l-accent bg-[#EEF1EC] py-3 pl-3 -ml-px">
+            <p className="text-[11px] font-medium text-accent">
+              1.3 · Article 54 Authorised Rep
+            </p>
+            <p className="mt-1 text-[10px] text-muted">
+              Non-EU provider — required ✓
+            </p>
+          </div>
+
+          <div className="py-3">
+            <p className="text-[11px] font-medium text-ink">
+              6 · Energy &amp; Compute Disclosures
+            </p>
+            <PlaceholderBar className="mt-2 w-[78%]" />
+          </div>
+
+          <div className="py-3">
+            <p className="text-[11px] font-medium text-ink">
+              8 · Red-Teaming &amp; Adversarial Eval
+            </p>
+            <PlaceholderBar className="mt-2 w-[70%]" />
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center justify-between border-t border-hairline pt-3">
+          <p className="text-[9px] font-medium uppercase tracking-[0.08em] text-dim">
+            18 PAGES · ASCII-CLEAN
+          </p>
+          <p className="text-[10px] font-medium text-muted">⤓ PDF</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -189,14 +263,18 @@ export default function Home() {
     limited: { headline: "LIMITED EU AI ACT EXPOSURE", priority: "PRIORITY · LOW" },
   };
 
-  const labelClass = `${mono} text-[10px] uppercase tracking-[0.12em] text-[#444444]`;
+  const labelClass =
+    "font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-dim";
+  const primaryBtnClass =
+    "juris-cta-primary inline-flex items-center justify-center rounded-[7px] bg-ink px-5 py-3 text-center text-[13px] font-medium uppercase tracking-[0.08em] text-bg";
+  const secondaryBtnClass =
+    "juris-cta-secondary inline-flex items-center justify-center rounded-[7px] border border-hairline bg-transparent px-5 py-3 text-center text-[13px] font-medium uppercase tracking-[0.08em] text-ink";
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FFFFFF]">
+    <div className="min-h-screen bg-bg text-ink">
       <style
         dangerouslySetInnerHTML={{
           __html: `
-          html { scroll-behavior: smooth; }
           @keyframes juris-hero-fade-up {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -204,97 +282,105 @@ export default function Home() {
           .juris-hero-h1 { opacity: 0; animation: juris-hero-fade-up 0.6s ease forwards; }
           .juris-hero-sub { opacity: 0; animation: juris-hero-fade-up 0.6s ease 0.1s forwards; }
           .juris-hero-cta { opacity: 0; animation: juris-hero-fade-up 0.6s ease 0.2s forwards; }
+          .juris-hero-preview { opacity: 0; animation: juris-hero-fade-up 0.6s ease 0.15s forwards; }
           .juris-card {
             transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
           }
           .juris-card:hover {
-            border-color: #333333;
-            background-color: #1A1A1A;
+            border-color: #d5cfc4;
+            background-color: #ffffff;
             transform: translateY(-2px);
           }
           .juris-table-row { transition: background-color 0.2s ease; }
-          .juris-table-row:hover { background-color: #1A1A1A; }
+          .juris-table-row:hover { background-color: #f7f4ee; }
           .juris-faq-panel { overflow: hidden; transition: max-height 0.3s ease; }
           .juris-risk-option {
             transition: border-color 0.15s ease, background-color 0.15s ease;
           }
-          .juris-risk-option:hover { border-color: #444444; }
+          .juris-risk-option:hover { border-color: #c9c2b6; }
           .juris-cta-primary {
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            transition: transform 0.2s ease, background-color 0.2s ease;
           }
           .juris-cta-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 24px rgba(255,255,255,0.08);
-            background-color: #F5F5F5;
+            background-color: #3a342c;
           }
           .juris-cta-secondary { transition: border-color 0.2s ease, color 0.2s ease; }
-          .juris-cta-secondary:hover { border-color: #666666; color: #FFFFFF; }
+          .juris-cta-secondary:hover { border-color: #9a917f; color: #211e19; }
         `,
         }}
       />
 
       {/* Top nav */}
-      <header className="flex w-full flex-wrap items-center justify-between gap-4 border-b border-[#222222] bg-[#0A0A0A] px-6 py-4 sm:px-12">
+      <header className="flex w-full flex-wrap items-center justify-between gap-4 border-b border-hairline bg-bg px-6 py-4 sm:px-12">
         <div className="flex items-center">
-          <span className="text-[14px] font-bold tracking-[0.14em] text-[#FFFFFF]">
+          <span className="text-[14px] font-bold tracking-[0.14em] text-ink">
             JURIS
           </span>
-          <span className="text-[14px] font-bold tracking-[0.14em] text-[#FFFFFF]">
+          <span className="text-[14px] font-bold tracking-[0.14em] text-ink">
             AI
           </span>
         </div>
-        <p className={`${mono} text-left text-[11px] uppercase tracking-[0.08em] leading-snug text-[#666666] sm:text-right`}>
+        <p className="font-sans text-left text-[11px] font-medium uppercase tracking-[0.08em] leading-snug text-dim sm:text-right">
           Articles 51–56 · Regulation (EU) 2024/1689
         </p>
       </header>
 
       {/* Enforcement banner */}
-      <div className="w-full border-b border-[#222222] bg-[#111111] px-4 py-2.5 text-center">
-        <p className={`${mono} text-[11px] uppercase tracking-[0.08em] leading-relaxed text-[#444444] sm:px-8`}>
+      <div className="w-full border-b border-hairline bg-chrome px-4 py-2.5 text-center">
+        <p className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] leading-relaxed text-dim sm:px-8">
           GPAI OBLIGATIONS UNDER ARTICLES 51–56 ENFORCED SINCE AUGUST 2, 2025 · NON-COMPLIANCE UP TO 3% OF GLOBAL ANNUAL TURNOVER
         </p>
       </div>
 
       <main>
         {/* Hero */}
-        <section className="mx-auto max-w-[1200px] px-6 pb-16 pt-14 sm:px-12 sm:pb-20 sm:pt-20">
-          <div className={`inline-flex items-center border border-[#222222] bg-[#111111] px-3 py-1 ${mono} text-[10px] uppercase tracking-[0.12em] text-[#888888]`}>
-            Regulation (EU) 2024/1689 · Annex XI compliance
+        <section className="mx-auto max-w-[1200px] px-6 py-9 sm:px-12 sm:py-[36px]">
+          <div className="grid items-center gap-10 lg:grid-cols-[58%_42%] lg:gap-12">
+            <div>
+              <div className="inline-flex items-center rounded-[5px] border border-[#c8d5cb] bg-accent-tint px-3 py-1 font-sans text-[10.5px] font-medium uppercase tracking-[0.07em] text-accent">
+                Regulation (EU) 2024/1689 · Annex XI compliance
+              </div>
+
+              <h1 className="juris-hero-h1 font-serif mt-8 max-w-[760px] text-[37px] font-medium leading-[1.1] tracking-[-0.015em] text-ink">
+                Your GPAI model is already subject to EU law.
+              </h1>
+
+              <p className="juris-hero-sub mt-6 max-w-[31em] text-[15px] leading-[1.6] text-muted">
+                JurisAI generates your complete Article 53 documentation package —
+                Annex XI, Annex XII, copyright compliance policy, and training data
+                summary — in under 10 minutes.
+              </p>
+
+              <div className="juris-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <Link
+                  href="/generate"
+                  className={`${primaryBtnClass} sm:min-w-[300px]`}
+                >
+                  Generate Annex XI Documentation →
+                </Link>
+                <Link
+                  href="#what-jurisai-generates"
+                  className={`${secondaryBtnClass} sm:min-w-[240px]`}
+                >
+                  See what Annex XI requires
+                </Link>
+              </div>
+
+              <p className="font-sans mt-6 text-[11px] font-medium uppercase tracking-[0.08em] leading-relaxed text-dim">
+                Enforced since August 2025 · Article 53(1)(a) · Regulation (EU) 2024/1689
+              </p>
+            </div>
+
+            <div className="juris-hero-preview lg:pt-2">
+              <HeroDocumentPreview />
+            </div>
           </div>
-
-          <h1 className="juris-hero-h1 mt-8 max-w-[760px] text-[36px] font-semibold leading-[1.1] tracking-tight text-[#FFFFFF] sm:text-[48px] md:text-[52px]">
-            Your GPAI model is already subject to EU law.
-          </h1>
-
-          <p className="juris-hero-sub mt-6 max-w-[620px] text-[14px] leading-[1.7] text-[#888888] sm:text-[15px]">
-            JurisAI generates your complete Article 53 documentation package —
-            Annex XI, Annex XII, copyright compliance policy, and training data
-            summary — in under 10 minutes.
-          </p>
-
-          <div className="juris-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Link
-              href="/generate"
-              className="juris-cta-primary inline-flex items-center justify-center rounded-none bg-[#FFFFFF] px-5 py-3 text-center text-[13px] font-medium uppercase tracking-[0.08em] text-[#000000] sm:min-w-[300px]"
-            >
-              Generate Annex XI Documentation →
-            </Link>
-            <Link
-              href="#what-jurisai-generates"
-              className="juris-cta-secondary inline-flex items-center justify-center rounded-none border border-[#333333] bg-transparent px-5 py-3 text-center text-[13px] font-medium uppercase tracking-[0.08em] text-[#888888] sm:min-w-[240px]"
-            >
-              See what Annex XI requires
-            </Link>
-          </div>
-
-          <p className={`${mono} mt-6 text-[11px] uppercase tracking-[0.08em] leading-relaxed text-[#666666]`}>
-            Enforced since August 2025 · Article 53(1)(a) · Regulation (EU) 2024/1689
-          </p>
         </section>
 
         {/* Countdown */}
-        <section className="border-y border-[#222222] bg-[#0A0A0A] px-6 py-12 sm:px-12">
-          <div className="mx-auto max-w-[1100px] border border-[#222222] bg-[#111111] px-6 py-10 sm:px-12">
+        <section className="border-y border-hairline bg-bg px-6 py-12 sm:px-12">
+          <div className="mx-auto max-w-[1100px] border border-hairline bg-surface px-6 py-10 sm:px-12">
             <p className={labelClass + " text-center"}>
               Time remaining until high-risk AI system deadline
             </p>
@@ -306,19 +392,19 @@ export default function Home() {
               {timeUnits.map((u) => (
                 <div
                   key={u.label}
-                  className="flex flex-col items-center justify-center border border-[#222222] bg-[#0A0A0A] px-4 py-5 sm:px-6"
+                  className="flex flex-col items-center justify-center border border-hairline bg-bg px-4 py-5 sm:px-6"
                 >
-                  <span className={`${mono} text-[40px] font-bold leading-none text-[#FFFFFF] sm:text-[52px]`}>
+                  <span className="font-serif text-[40px] font-semibold leading-none text-ink sm:text-[52px]">
                     {u.value}
                   </span>
-                  <span className={`${mono} mt-3 text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
+                  <span className="font-sans mt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
                     {u.label}
                   </span>
                 </div>
               ))}
             </div>
 
-            <p className={`${mono} mt-8 text-center text-[11px] uppercase tracking-[0.08em] leading-relaxed text-[#666666] sm:px-4`}>
+            <p className="font-sans mt-8 text-center text-[11px] font-medium uppercase tracking-[0.08em] leading-relaxed text-muted sm:px-4">
               GPAI obligations enforced since August 2, 2025 · High-risk provisions enforce August 2, 2026
             </p>
           </div>
@@ -327,7 +413,7 @@ export default function Home() {
         {/* Obligation cards */}
         <section
           id="what-jurisai-generates"
-          className="mx-auto max-w-[1200px] px-6 py-16 sm:px-12 sm:py-20 scroll-mt-6"
+          className="mx-auto max-w-[1200px] scroll-mt-6 px-6 py-16 sm:px-12 sm:py-20"
         >
           <p className={labelClass}>What JurisAI generates</p>
 
@@ -354,18 +440,18 @@ export default function Home() {
             ].map((c) => (
               <article
                 key={c.ref}
-                className="juris-card flex flex-col border border-[#222222] bg-[#111111] p-6"
+                className="juris-card flex flex-col border border-hairline bg-surface p-6"
               >
-                <p className={`${mono} text-[10px] uppercase tracking-[0.12em] text-[#888888]`}>
+                <p className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
                   {c.ref}
                 </p>
-                <h3 className="mt-3 text-[16px] font-semibold leading-snug text-[#FFFFFF]">
+                <h3 className="font-serif mt-3 text-[16px] font-medium leading-snug text-ink">
                   {c.title}
                 </h3>
-                <p className="mt-3 flex-1 text-[14px] leading-[1.7] text-[#888888]">
+                <p className="mt-3 flex-1 text-[14px] leading-[1.7] text-muted">
                   {c.desc}
                 </p>
-                <p className={`${mono} mt-6 border-t border-[#222222] pt-4 text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
+                <p className="font-sans mt-6 border-t border-hairline pt-4 text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
                   {c.footnote}
                 </p>
               </article>
@@ -374,13 +460,13 @@ export default function Home() {
         </section>
 
         {/* How it works */}
-        <section className="border-t border-[#222222] bg-[#0A0A0A] px-6 py-16 sm:px-12 sm:py-20">
+        <section className="border-t border-hairline bg-bg px-6 py-16 sm:px-12 sm:py-20">
           <div className="mx-auto max-w-[1200px]">
             <p className={labelClass + " text-center"}>HOW IT WORKS</p>
 
             <div className="relative mt-14">
               <div
-                className="pointer-events-none absolute left-[8%] right-[8%] top-4 z-0 hidden h-px border-t border-dashed border-[#222222] md:block"
+                className="pointer-events-none absolute left-[8%] right-[8%] top-4 z-0 hidden h-px border-t border-dashed border-hairline md:block"
                 aria-hidden
               />
 
@@ -409,17 +495,17 @@ export default function Home() {
                   >
                     {i > 0 && (
                       <div
-                        className="absolute -top-6 left-1/2 z-0 h-6 w-px -translate-x-1/2 border-l border-dashed border-[#222222] md:hidden"
+                        className="absolute -top-6 left-1/2 z-0 h-6 w-px -translate-x-1/2 border-l border-dashed border-hairline md:hidden"
                         aria-hidden
                       />
                     )}
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#FFFFFF] bg-[#0A0A0A] text-[13px] font-semibold text-[#FFFFFF]">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-ink bg-bg text-[13px] font-semibold text-ink">
                       {i + 1}
                     </div>
-                    <h3 className="mt-4 text-[14px] font-semibold leading-snug text-[#FFFFFF]">
+                    <h3 className="font-serif mt-4 text-[14px] font-medium leading-snug text-ink">
                       {step.title}
                     </h3>
-                    <p className="mt-2 max-w-[240px] text-[12px] leading-[1.7] text-[#888888]">
+                    <p className="mt-2 max-w-[240px] text-[12px] leading-[1.7] text-muted">
                       {step.desc}
                     </p>
                   </div>
@@ -431,21 +517,21 @@ export default function Home() {
 
         {/* Risk check */}
         <section className="mx-auto max-w-[1200px] px-6 pb-16 sm:px-12 sm:pb-20">
-          <div className="border border-[#222222] bg-[#111111] p-[40px]">
-            <p className={`${mono} text-[10px] uppercase tracking-[0.12em] text-[#888888]`}>
+          <div className="border border-hairline bg-surface p-[40px]">
+            <p className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
               FREE GPAI RISK ASSESSMENT
             </p>
-            <h2 className="mt-4 text-[24px] font-semibold leading-tight text-[#FFFFFF] sm:text-[28px]">
+            <h2 className="font-serif mt-4 text-[24px] font-medium leading-tight text-ink sm:text-[28px]">
               Does EU AI Act apply to your model?
             </h2>
-            <p className="mt-3 max-w-[640px] text-[14px] leading-[1.7] text-[#888888]">
+            <p className="mt-3 max-w-[640px] text-[14px] leading-[1.7] text-muted">
               Answer 4 questions to find out exactly which obligations apply to you.
             </p>
 
             <div className="mt-10 space-y-10">
               {/* Q1 */}
               <div>
-                <p className="mb-3 text-[13px] font-medium text-[#FFFFFF]">
+                <p className="mb-3 text-[13px] font-medium text-ink">
                   Q1 · Is your model accessible via API or deployed in Europe?
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -459,10 +545,10 @@ export default function Home() {
                           setRiskQ1(v);
                           setRiskSubmitted(false);
                         }}
-                        className={`juris-risk-option cursor-pointer rounded-none border px-[16px] py-[12px] text-left text-[14px] sm:min-w-[120px] ${
+                        className={`juris-risk-option cursor-pointer rounded-[7px] border px-[16px] py-[12px] text-left text-[14px] sm:min-w-[120px] ${
                           selected
-                            ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                            : "border-[#222222] bg-[#0A0A0A] text-[#888888]"
+                            ? "border-ink bg-bg text-ink"
+                            : "border-hairline bg-surface text-muted"
                         }`}
                       >
                         {v === "yes" ? "Yes" : "No"}
@@ -474,7 +560,7 @@ export default function Home() {
 
               {/* Q2 */}
               <div>
-                <p className="mb-3 text-[13px] font-medium text-[#FFFFFF]">
+                <p className="mb-3 text-[13px] font-medium text-ink">
                   Q2 · Estimate your total training compute
                 </p>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -488,10 +574,10 @@ export default function Home() {
                           setRiskQ2(key);
                           setRiskSubmitted(false);
                         }}
-                        className={`juris-risk-option cursor-pointer rounded-none border px-[16px] py-[12px] text-left text-[13px] leading-snug ${
+                        className={`juris-risk-option cursor-pointer rounded-[7px] border px-[16px] py-[12px] text-left text-[13px] leading-snug ${
                           selected
-                            ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                            : "border-[#222222] bg-[#0A0A0A] text-[#888888]"
+                            ? "border-ink bg-bg text-ink"
+                            : "border-hairline bg-surface text-muted"
                         }`}
                       >
                         {label}
@@ -503,7 +589,7 @@ export default function Home() {
 
               {/* Q3 */}
               <div>
-                <p className="mb-3 text-[13px] font-medium text-[#FFFFFF]">
+                <p className="mb-3 text-[13px] font-medium text-ink">
                   Q3 · Does your model generate text, images, audio, or video?
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row">
@@ -517,10 +603,10 @@ export default function Home() {
                           setRiskQ3(v);
                           setRiskSubmitted(false);
                         }}
-                        className={`juris-risk-option cursor-pointer rounded-none border px-[16px] py-[12px] text-[14px] sm:min-w-[120px] ${
+                        className={`juris-risk-option cursor-pointer rounded-[7px] border px-[16px] py-[12px] text-left text-[14px] sm:min-w-[120px] ${
                           selected
-                            ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                            : "border-[#222222] bg-[#0A0A0A] text-[#888888]"
+                            ? "border-ink bg-bg text-ink"
+                            : "border-hairline bg-surface text-muted"
                         }`}
                       >
                         {v === "yes" ? "Yes" : "No"}
@@ -532,7 +618,7 @@ export default function Home() {
 
               {/* Q4 */}
               <div>
-                <p className="mb-3 text-[13px] font-medium text-[#FFFFFF]">
+                <p className="mb-3 text-[13px] font-medium text-ink">
                   Q4 · Is your model available to downstream developers or businesses?
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row">
@@ -546,10 +632,10 @@ export default function Home() {
                           setRiskQ4(v);
                           setRiskSubmitted(false);
                         }}
-                        className={`juris-risk-option cursor-pointer rounded-none border px-[16px] py-[12px] text-[14px] sm:min-w-[120px] ${
+                        className={`juris-risk-option cursor-pointer rounded-[7px] border px-[16px] py-[12px] text-left text-[14px] sm:min-w-[120px] ${
                           selected
-                            ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                            : "border-[#222222] bg-[#0A0A0A] text-[#888888]"
+                            ? "border-ink bg-bg text-ink"
+                            : "border-hairline bg-surface text-muted"
                         }`}
                       >
                         {v === "yes" ? "Yes" : "No"}
@@ -564,30 +650,30 @@ export default function Home() {
               <button
                 type="button"
                 onClick={handleRiskCheck}
-                className="juris-cta-primary rounded-none bg-[#FFFFFF] px-6 py-3 text-[13px] font-medium uppercase tracking-[0.08em] text-[#000000]"
+                className={`${primaryBtnClass} px-6`}
               >
                 Check my obligations →
               </button>
             </div>
 
             {riskIncomplete && (
-              <p className={`${mono} mt-4 text-[11px] uppercase tracking-[0.08em] text-[#888888]`}>
+              <p className="font-sans mt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-muted">
                 Please answer all four questions to see your obligation level.
               </p>
             )}
 
             {riskSubmitted && riskTier && (
               <div
-                className="mt-10 border border-[#222222] bg-[#1A1A1A] p-6 sm:p-8"
+                className="mt-10 border border-hairline bg-bg p-6 sm:p-8"
                 role="status"
               >
-                <p className={`${mono} text-[10px] uppercase tracking-[0.12em] text-[#888888]`}>
+                <p className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
                   {tierLabel[riskTier].priority}
                 </p>
-                <p className="mt-3 text-[18px] font-semibold uppercase tracking-[0.04em] text-[#FFFFFF] sm:text-[20px]">
+                <p className="font-serif mt-3 text-[18px] font-medium uppercase tracking-[0.04em] text-ink sm:text-[20px]">
                   {tierLabel[riskTier].headline}
                 </p>
-                <p className="mt-3 text-[14px] leading-[1.7] text-[#888888]">
+                <p className="mt-3 text-[14px] leading-[1.7] text-muted">
                   {riskTier === "full" &&
                     "Based on your answers, you likely qualify as a GPAI provider with systemic-risk-level documentation duties. You need the full documentation stack below before EU market placement or service."}
                   {riskTier === "standard" &&
@@ -595,19 +681,16 @@ export default function Home() {
                   {riskTier === "limited" &&
                     "If you do not place a GPAI model on the EU market or put it into service in Europe, many Article 53 provider obligations may not attach yet. Voluntary documentation still reduces partner and investor risk."}
                 </p>
-                <ul className="mt-6 space-y-2 text-[14px] text-[#FFFFFF]">
+                <ul className="mt-6 space-y-2 text-[14px] text-ink">
                   {riskDocs[riskTier].map((d) => (
                     <li key={d} className="flex gap-3">
-                      <span className="mt-2 inline-block h-px w-3 shrink-0 bg-[#444444]" aria-hidden />
-                      <span className="text-[#888888]">{d}</span>
+                      <span className="mt-2 inline-block h-px w-3 shrink-0 bg-hairline" aria-hidden />
+                      <span className="text-muted">{d}</span>
                     </li>
                   ))}
                 </ul>
                 <div className="mt-8">
-                  <Link
-                    href="/generate"
-                    className="juris-cta-primary inline-flex items-center justify-center rounded-none bg-[#FFFFFF] px-6 py-3 text-[13px] font-medium uppercase tracking-[0.08em] text-[#000000]"
-                  >
+                  <Link href="/generate" className={`${primaryBtnClass} px-6`}>
                     Generate these documents →
                   </Link>
                 </div>
@@ -617,11 +700,11 @@ export default function Home() {
         </section>
 
         {/* Fine calculator strip */}
-        <section className="w-full border-y border-[#222222] bg-[#111111] px-6 py-12 text-center sm:px-12">
-          <p className="mx-auto max-w-[900px] text-[15px] leading-[1.7] text-[#FFFFFF] sm:text-[16px]">
+        <section className="w-full border-y border-hairline bg-chrome px-6 py-12 text-center sm:px-12">
+          <p className="mx-auto max-w-[900px] font-serif text-[15px] leading-[1.7] text-ink sm:text-[16px]">
             A company with €10M annual revenue faces up to €300,000 in fines for missing Annex XI documentation.
           </p>
-          <p className={`${mono} mt-3 text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
+          <p className="font-sans mt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
             Article 101 · Regulation (EU) 2024/1689
           </p>
         </section>
@@ -631,16 +714,16 @@ export default function Home() {
           <p className={labelClass + " text-center"}>JURISAI VS THE ALTERNATIVE</p>
 
           <div className="mt-10 overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse border border-[#222222] text-left text-[14px]">
+            <table className="w-full min-w-[640px] border-collapse border border-hairline text-left text-[14px]">
               <thead>
-                <tr className="border-b border-[#222222] bg-[#111111]">
-                  <th className={`${mono} px-4 py-3 text-[10px] uppercase tracking-[0.12em] text-[#444444] sm:px-5`}>
+                <tr className="border-b border-hairline bg-surface">
+                  <th className="font-sans px-4 py-3 text-[10px] font-medium uppercase tracking-[0.12em] text-dim sm:px-5">
                     Feature
                   </th>
-                  <th className={`${mono} border-l border-[#222222] px-4 py-3 text-[10px] uppercase tracking-[0.12em] text-[#444444] sm:px-5`}>
+                  <th className="font-sans border-l border-hairline px-4 py-3 text-[10px] font-medium uppercase tracking-[0.12em] text-dim sm:px-5">
                     Without JurisAI
                   </th>
-                  <th className={`${mono} border-l border-[#222222] px-4 py-3 text-[10px] uppercase tracking-[0.12em] text-[#444444] sm:px-5`}>
+                  <th className="font-sans border-l border-hairline px-4 py-3 text-[10px] font-medium uppercase tracking-[0.12em] text-dim sm:px-5">
                     With JurisAI
                   </th>
                 </tr>
@@ -658,19 +741,19 @@ export default function Home() {
                 ].map((row, idx) => (
                   <tr
                     key={row[0]}
-                    className={`juris-table-row border-b border-[#222222] ${idx % 2 === 0 ? "bg-[#0A0A0A]" : "bg-transparent"}`}
+                    className={`juris-table-row border-b border-hairline ${idx % 2 === 0 ? "bg-bg" : "bg-surface"}`}
                   >
-                    <td className="px-4 py-4 text-[14px] text-[#FFFFFF] sm:px-5">{row[0]}</td>
-                    <td className="border-l border-[#222222] px-4 py-4 sm:px-5">
+                    <td className="px-4 py-4 text-[14px] text-ink sm:px-5">{row[0]}</td>
+                    <td className="border-l border-hairline px-4 py-4 sm:px-5">
                       <div className="flex gap-2">
                         <IconX />
-                        <span className="text-[14px] text-[#888888]">{row[1]}</span>
+                        <span className="text-[14px] text-muted">{row[1]}</span>
                       </div>
                     </td>
-                    <td className="border-l border-[#222222] px-4 py-4 sm:px-5">
+                    <td className="border-l border-hairline px-4 py-4 sm:px-5">
                       <div className="flex gap-2">
                         <IconCheck />
-                        <span className="text-[14px] text-[#FFFFFF]">{row[2]}</span>
+                        <span className="text-[14px] text-ink">{row[2]}</span>
                       </div>
                     </td>
                   </tr>
@@ -681,7 +764,7 @@ export default function Home() {
         </section>
 
         {/* Testimonials */}
-        <section className="border-t border-[#222222] bg-[#0A0A0A] px-6 py-16 sm:px-12 sm:py-20">
+        <section className="border-t border-hairline bg-bg px-6 py-16 sm:px-12 sm:py-20">
           <div className="mx-auto max-w-[1200px]">
             <p className={labelClass + " text-center"}>WHAT COMPLIANCE EXPERTS SAY</p>
 
@@ -705,12 +788,12 @@ export default function Home() {
               ].map((t) => (
                 <article
                   key={t.role}
-                  className="juris-card flex flex-col border border-[#222222] bg-[#111111] p-[24px]"
+                  className="juris-card flex flex-col border border-hairline bg-surface p-[24px]"
                 >
-                  <p className="flex-1 text-[14px] italic leading-[1.7] text-[#FFFFFF]">
+                  <p className="flex-1 text-[14px] italic leading-[1.7] text-ink">
                     “{t.quote}”
                   </p>
-                  <p className={`${mono} mt-6 text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
+                  <p className="font-sans mt-6 text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
                     {t.role}
                   </p>
                 </article>
@@ -723,21 +806,21 @@ export default function Home() {
         <section className="mx-auto max-w-[820px] px-6 py-16 sm:px-12 sm:py-20">
           <p className={labelClass + " text-center"}>FREQUENTLY ASKED QUESTIONS</p>
 
-          <div className="mt-10 border-t border-[#222222]">
+          <div className="mt-10 border-t border-hairline">
             {FAQ_ITEMS.map((item, index) => {
               const open = faqOpen[String(index)];
               return (
-                <div key={item.q} className="border-b border-[#222222] py-5">
+                <div key={item.q} className="border-b border-hairline py-5">
                   <button
                     type="button"
                     className="flex w-full cursor-pointer items-start justify-between gap-4 text-left"
                     onClick={() => toggleFaq(index)}
                     aria-expanded={open}
                   >
-                    <span className="text-[15px] font-medium text-[#FFFFFF]">
+                    <span className="font-serif text-[15px] font-medium text-ink">
                       {item.q}
                     </span>
-                    <span className={`${mono} shrink-0 text-[16px] text-[#FFFFFF]`} aria-hidden>
+                    <span className="font-sans shrink-0 text-[16px] text-ink" aria-hidden>
                       {open ? "−" : "+"}
                     </span>
                   </button>
@@ -745,7 +828,7 @@ export default function Home() {
                     className="juris-faq-panel"
                     style={{ maxHeight: open ? 2000 : 0 }}
                   >
-                    <p className="pt-3 text-[13px] leading-[1.7] text-[#888888]">
+                    <p className="pt-3 text-[13px] leading-[1.7] text-muted">
                       {item.a}
                     </p>
                   </div>
@@ -756,34 +839,31 @@ export default function Home() {
         </section>
 
         {/* Final CTA */}
-        <section className="bg-[#0A0A0A] px-6 py-20 text-center sm:px-12">
-          <h2 className="mx-auto max-w-[720px] text-[28px] font-semibold leading-tight text-[#FFFFFF] sm:text-[36px]">
+        <section className="bg-bg px-6 py-20 text-center sm:px-12">
+          <h2 className="font-serif mx-auto max-w-[720px] text-[28px] font-medium leading-tight text-ink sm:text-[36px]">
             Generate your compliance documentation today.
           </h2>
-          <p className="mx-auto mt-4 max-w-[560px] text-[14px] leading-[1.7] text-[#888888] sm:text-[15px]">
+          <p className="mx-auto mt-4 max-w-[560px] text-[14px] leading-[1.7] text-muted sm:text-[15px]">
             Built specifically for GPAI model providers. Covers every Article 53 obligation.
           </p>
           <div className="mt-10 flex justify-center">
-            <Link
-              href="/generate"
-              className="juris-cta-primary inline-flex items-center justify-center rounded-none bg-[#FFFFFF] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-[#000000]"
-            >
+            <Link href="/generate" className={`${primaryBtnClass} px-8 py-3.5`}>
               Start Annex XI Generator →
             </Link>
           </div>
-          <p className={`${mono} mx-auto mt-6 max-w-[640px] text-[10px] uppercase tracking-[0.12em] leading-relaxed text-[#444444]`}>
+          <p className="font-sans mx-auto mt-6 max-w-[640px] text-[10px] font-medium uppercase tracking-[0.12em] leading-relaxed text-dim">
             No account required · Under 10 minutes · Regulation (EU) 2024/1689 aligned
           </p>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#222222] bg-[#0A0A0A] px-6 py-8 sm:px-12">
+      <footer className="border-t border-hairline bg-chrome px-6 py-8 sm:px-12">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-[12px] font-bold tracking-[0.14em] text-[#FFFFFF]">
+          <div className="text-[12px] font-bold tracking-[0.14em] text-ink">
             JURISAI
           </div>
-          <p className={`${mono} text-[10px] uppercase tracking-[0.12em] text-[#444444] sm:text-right`}>
+          <p className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-dim sm:text-right">
             Built for GPAI providers navigating Regulation (EU) 2024/1689
           </p>
         </div>
