@@ -412,14 +412,14 @@ function sanitizeFilename(name) {
   );
 }
 
-const mono = "font-mono-legal";
-
-const labelClass = `${mono} block text-[10px] uppercase tracking-[0.12em] text-[#444444]`;
-const sectionTitleClass = `${mono} text-[10px] uppercase tracking-[0.12em] text-[#888888]`;
-const sectionDivider = { borderBottom: "1px solid #1A1A1A" };
+const labelClass =
+  "font-sans block text-[10px] font-medium uppercase tracking-[0.12em] text-dim";
+const sectionTitleClass =
+  "font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-dim";
+const sectionDivider = { borderBottom: "1px solid var(--hairline)" };
 
 const inputClass =
-  "mt-2 w-full rounded-none border border-[#222222] bg-[#0A0A0A] px-[14px] py-[10px] text-[14px] font-normal text-[#FFFFFF] outline-none placeholder:text-[#333333] focus:border-[#FFFFFF] transition-colors";
+  "mt-2 w-full rounded-[7px] border border-hairline bg-surface px-[14px] py-[10px] text-[14px] font-normal text-ink outline-none placeholder:text-dim focus:border-ink transition-colors";
 
 const fieldCol = "flex flex-col gap-5";
 
@@ -714,7 +714,7 @@ export default function GeneratePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FFFFFF]">
+    <div className="min-h-screen bg-[linear-gradient(180deg,var(--bg)_0%,var(--surface)_48%,var(--bg)_100%)] text-ink">
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -723,16 +723,16 @@ export default function GeneratePage() {
             -webkit-appearance: none;
             width: 16px;
             height: 16px;
-            border: 1px solid #222222;
-            background: #0A0A0A;
+            border: 1px solid var(--hairline);
+            background: var(--surface);
             position: relative;
             cursor: pointer;
             display: inline-block;
             transition: border-color 0.15s ease, background-color 0.15s ease;
             flex-shrink: 0;
           }
-          .juris-check:hover { border-color: #444444; }
-          .juris-check:checked { background: #FFFFFF; border-color: #FFFFFF; }
+          .juris-check:hover { border-color: #c9c2b6; }
+          .juris-check:checked { background: var(--ink); border-color: var(--ink); }
           .juris-check:checked::after {
             content: "";
             position: absolute;
@@ -740,8 +740,8 @@ export default function GeneratePage() {
             top: 1px;
             width: 5px;
             height: 9px;
-            border-right: 1.6px solid #000000;
-            border-bottom: 1.6px solid #000000;
+            border-right: 1.6px solid var(--bg);
+            border-bottom: 1.6px solid var(--bg);
             transform: rotate(45deg);
           }
           .juris-radio {
@@ -749,8 +749,8 @@ export default function GeneratePage() {
             -webkit-appearance: none;
             width: 16px;
             height: 16px;
-            border: 1px solid #222222;
-            background: #0A0A0A;
+            border: 1px solid var(--hairline);
+            background: var(--surface);
             border-radius: 50%;
             position: relative;
             cursor: pointer;
@@ -758,8 +758,8 @@ export default function GeneratePage() {
             transition: border-color 0.15s ease, background-color 0.15s ease;
             flex-shrink: 0;
           }
-          .juris-radio:hover { border-color: #444444; }
-          .juris-radio:checked { background: #FFFFFF; border-color: #FFFFFF; }
+          .juris-radio:hover { border-color: #c9c2b6; }
+          .juris-radio:checked { background: var(--ink); border-color: var(--ink); }
           .juris-radio:checked::after {
             content: "";
             position: absolute;
@@ -767,32 +767,32 @@ export default function GeneratePage() {
             top: 4px;
             width: 6px;
             height: 6px;
-            background: #000000;
+            background: var(--bg);
             border-radius: 50%;
           }
-          .juris-doc { color: #888888; font-size: 14px; line-height: 1.7; font-family: inherit; word-wrap: break-word; }
+          .juris-doc { color: var(--muted); font-size: 14px; line-height: 1.7; font-family: inherit; word-wrap: break-word; }
           .juris-doc > *:first-child { margin-top: 0; }
-          .juris-doc h1 { color: #FFFFFF; font-size: 22px; font-weight: 600; line-height: 1.3; margin: 28px 0 12px; }
-          .juris-doc h2 { color: #FFFFFF; font-size: 18px; font-weight: 600; line-height: 1.3; margin: 24px 0 10px; }
-          .juris-doc h3 { color: #FFFFFF; font-size: 16px; font-weight: 600; line-height: 1.4; margin: 20px 0 8px; }
-          .juris-doc h4, .juris-doc h5, .juris-doc h6 { color: #FFFFFF; font-size: 14px; font-weight: 600; margin: 18px 0 8px; }
+          .juris-doc h1 { color: var(--ink); font-family: var(--font-serif), ui-serif, Georgia, serif; font-size: 22px; font-weight: 500; line-height: 1.3; margin: 28px 0 12px; }
+          .juris-doc h2 { color: var(--ink); font-family: var(--font-serif), ui-serif, Georgia, serif; font-size: 18px; font-weight: 500; line-height: 1.3; margin: 24px 0 10px; }
+          .juris-doc h3 { color: var(--ink); font-family: var(--font-serif), ui-serif, Georgia, serif; font-size: 16px; font-weight: 500; line-height: 1.4; margin: 20px 0 8px; }
+          .juris-doc h4, .juris-doc h5, .juris-doc h6 { color: var(--ink); font-size: 14px; font-weight: 500; margin: 18px 0 8px; }
           .juris-doc p { margin: 0 0 16px 0; }
-          .juris-doc strong, .juris-doc b { color: #FFFFFF; font-weight: 600; }
-          .juris-doc em, .juris-doc i { font-style: italic; color: #888888; }
-          .juris-doc hr { border: 0; border-top: 1px solid #222222; margin: 24px 0; height: 0; }
+          .juris-doc strong, .juris-doc b { color: var(--ink); font-weight: 600; }
+          .juris-doc em, .juris-doc i { font-style: italic; color: var(--muted); }
+          .juris-doc hr { border: 0; border-top: 1px solid var(--hairline); margin: 24px 0; height: 0; }
           .juris-doc ul, .juris-doc ol { margin: 0 0 16px 0; padding-left: 22px; }
           .juris-doc li { margin-bottom: 6px; }
           .juris-doc li > p { margin: 0 0 6px 0; }
-          .juris-doc blockquote { border-left: 3px solid #222222; margin: 16px 0; padding: 4px 14px; color: #666666; font-style: italic; }
+          .juris-doc blockquote { border-left: 3px solid var(--hairline); margin: 16px 0; padding: 4px 14px; color: var(--muted); font-style: italic; }
           .juris-doc blockquote p { margin: 6px 0; }
-          .juris-doc code { background: #1A1A1A; padding: 2px 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: #FFFFFF; }
-          .juris-doc pre { background: #1A1A1A; padding: 12px 14px; overflow-x: auto; margin: 16px 0; border: 1px solid #222222; }
-          .juris-doc pre code { background: transparent; padding: 0; font-size: 12.5px; color: #FFFFFF; }
-          .juris-doc a { color: #FFFFFF; text-decoration: underline; }
-          .juris-doc table { width: 100%; border-collapse: collapse; margin: 16px 0; border: 1px solid #222222; background: #1A1A1A; }
-          .juris-doc thead { background: #111111; }
-          .juris-doc th, .juris-doc td { border: 1px solid #222222; padding: 8px 12px; text-align: left; font-size: 13px; vertical-align: top; color: #888888; }
-          .juris-doc th { font-weight: 600; color: #FFFFFF; }
+          .juris-doc code { background: var(--chrome); padding: 2px 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--ink); }
+          .juris-doc pre { background: var(--chrome); padding: 12px 14px; overflow-x: auto; margin: 16px 0; border: 1px solid var(--hairline); }
+          .juris-doc pre code { background: transparent; padding: 0; font-size: 12.5px; color: var(--ink); }
+          .juris-doc a { color: var(--ink); text-decoration: underline; }
+          .juris-doc table { width: 100%; border-collapse: collapse; margin: 16px 0; border: 1px solid var(--hairline); background: var(--surface); }
+          .juris-doc thead { background: var(--chrome); }
+          .juris-doc th, .juris-doc td { border: 1px solid var(--hairline); padding: 8px 12px; text-align: left; font-size: 13px; vertical-align: top; color: var(--muted); }
+          .juris-doc th { font-weight: 600; color: var(--ink); }
         `,
         }}
       />
@@ -800,26 +800,26 @@ export default function GeneratePage() {
       <div className="mx-auto max-w-[720px] px-[24px] py-[48px]">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col border border-[#222222] bg-[#111111] p-8"
+          className="flex flex-col rounded-lg border border-hairline bg-surface p-8"
         >
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center text-[13px] font-bold tracking-[0.14em] text-[#FFFFFF]">
-              JURIS<span className="text-[#FFFFFF]">AI</span>
+            <Link href="/" className="flex items-center text-[13px] font-bold tracking-[0.14em] text-ink">
+              JURIS<span>AI</span>
             </Link>
-            <span className={`${mono} text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
+            <span className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
               Annex XI · Article 53(1)(a)
             </span>
           </div>
 
           <hr
-            className="mt-4 h-0 border-0 border-t border-[#1A1A1A] p-0"
+            className="mt-4 h-0 border-0 border-t border-hairline p-0"
             aria-hidden
           />
 
-          <h1 className="mt-6 text-[24px] font-semibold leading-tight text-[#FFFFFF]">
+          <h1 className="font-serif mt-6 text-[28px] font-medium leading-tight text-ink">
             Annex XI document generator
           </h1>
-          <p className="mt-3 text-[13px] leading-[1.7] text-[#888888] mb-6">
+          <p className="mb-6 mt-3 text-[13px] leading-[1.7] text-muted">
             Structured technical documentation required under Article 53(1)(a)
             of Regulation (EU) 2024/1689 — complete each section to generate
             your Annex XI compliance record.
@@ -840,11 +840,11 @@ export default function GeneratePage() {
                     onClick={() => {
                       if (!generateLoading) setStep(s.id);
                     }}
-                    className={`${mono} flex-1 pb-2.5 text-center text-[10px] uppercase tracking-[0.12em] transition-colors disabled:cursor-not-allowed disabled:opacity-50`}
+                    className="font-sans flex-1 pb-2.5 text-center text-[10px] font-medium uppercase tracking-[0.12em] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                     style={{
-                      color: active ? "#FFFFFF" : "#444444",
+                      color: active ? "var(--ink)" : "var(--dim)",
                       borderBottom: active
-                        ? "1px solid #FFFFFF"
+                        ? "1px solid var(--ink)"
                         : "1px solid transparent",
                     }}
                   >
@@ -855,7 +855,7 @@ export default function GeneratePage() {
             </nav>
           ) : (
             <div
-              className={`${mono} border-b border-[#FFFFFF] pb-2.5 text-center text-[10px] uppercase tracking-[0.12em] text-[#FFFFFF]`}
+              className="font-sans border-b border-ink pb-2.5 text-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink"
               role="status"
             >
               Output
@@ -864,7 +864,7 @@ export default function GeneratePage() {
 
           {/* Progress bar */}
           <div
-            className="mt-4 h-px w-full overflow-hidden bg-[#222222]"
+            className="mt-4 h-px w-full overflow-hidden bg-hairline"
             role="progressbar"
             aria-valuenow={step >= RESULT_STEP ? RESULT_STEP : step}
             aria-valuemin={1}
@@ -872,18 +872,18 @@ export default function GeneratePage() {
             aria-label="Form progress"
           >
             <div
-              className="h-px bg-[#FFFFFF] transition-[width] duration-200 ease-out"
+              className="h-px bg-ink transition-[width] duration-200 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
 
-          <p className={`${mono} mt-3 text-[10px] uppercase tracking-[0.12em] text-[#444444]`}>
+          <p className="font-sans mt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
             <span>
               {String(step >= RESULT_STEP ? RESULT_STEP : step).padStart(2, "0")}
               {" / "}
               {String(RESULT_STEP).padStart(2, "0")}
             </span>
-            <span className="ml-2 text-[#666666]">
+            <span className="ml-2 text-muted">
               ·{" "}
               {step >= RESULT_STEP
                 ? "Generated document"
@@ -909,11 +909,11 @@ export default function GeneratePage() {
                       placeholder="e.g. Juris-LM 7B"
                     />
                   </div>
-                  <div className="sm:col-span-2 border-t border-[#1A1A1A] pt-5">
-                    <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                  <div className="sm:col-span-2 border-t border-hairline pt-5">
+                    <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink">
                       Provider Identification
                     </h3>
-                    <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                    <p className="mt-2 text-[13px] leading-[1.7] text-muted">
                       Section 1 of the generated Annex XI document. Required before any model description.
                     </p>
                   </div>
@@ -1058,11 +1058,11 @@ export default function GeneratePage() {
                   {form.providerLegalIdentity.countryOfEstablishment &&
                     !isEUEstablished && (
                     <>
-                      <div className="sm:col-span-2 border-t border-[#1A1A1A] pt-5">
-                        <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                      <div className="sm:col-span-2 border-t border-hairline pt-5">
+                        <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink">
                           Authorised Representative
                         </h3>
-                        <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                        <p className="mt-2 text-[13px] leading-[1.7] text-muted">
                           Required for non-EU GPAI providers under Article 54.
                         </p>
                       </div>
@@ -1163,8 +1163,8 @@ export default function GeneratePage() {
                           key={key}
                           className={`flex cursor-pointer items-center gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal transition-colors ${
                             checked
-                              ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                              : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                              ? "border-ink bg-bg text-ink"
+                              : "border-hairline bg-surface text-muted hover:border-dim"
                           }`}
                         >
                           <input
@@ -1284,11 +1284,11 @@ export default function GeneratePage() {
                   />
                 </div>
 
-                <div className="border-t border-[#1A1A1A] pt-6">
-                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                <div className="border-t border-hairline pt-6">
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink">
                     Energy and Compute Disclosures
                   </h3>
-                  <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                  <p className="mt-2 text-[13px] leading-[1.7] text-muted">
                     Annex XI Section 1(j) — training energy consumption and compute.
                   </p>
                 </div>
@@ -1419,11 +1419,11 @@ export default function GeneratePage() {
                   />
                 </div>
 
-                <div className="border-t border-[#1A1A1A] pt-6">
-                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                <div className="border-t border-hairline pt-6">
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink">
                     Red-Teaming and Adversarial Evaluation
                   </h3>
-                  <p className="mt-2 text-[13px] leading-[1.7] text-[#888888]">
+                  <p className="mt-2 text-[13px] leading-[1.7] text-muted">
                     Annex XI Section 2 — internal and external adversarial testing measures.
                   </p>
                 </div>
@@ -1450,8 +1450,8 @@ export default function GeneratePage() {
                           key={category}
                           className={`flex cursor-pointer items-start gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal leading-snug transition-colors ${
                             checked
-                              ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                              : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                              ? "border-ink bg-bg text-ink"
+                              : "border-hairline bg-surface text-muted hover:border-dim"
                           }`}
                         >
                           <input
@@ -1543,7 +1543,7 @@ export default function GeneratePage() {
 
                 {/* 7.1 Intended use cases */}
                 <section className="flex flex-col gap-3">
-                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink">
                     7.1 — Intended use cases
                   </h3>
                   <fieldset className="min-w-0 border-0 p-0">
@@ -1557,8 +1557,8 @@ export default function GeneratePage() {
                             key={category}
                             className={`flex cursor-pointer items-start gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal leading-snug transition-colors ${
                               checked
-                                ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                                : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                                ? "border-ink bg-bg text-ink"
+                                : "border-hairline bg-surface text-muted hover:border-dim"
                             }`}
                           >
                             <input
@@ -1593,8 +1593,8 @@ export default function GeneratePage() {
                 </section>
 
                 {/* 7.2 Prohibited use cases */}
-                <section className="mt-2 flex flex-col gap-3 border-t border-[#1A1A1A] pt-6">
-                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                <section className="mt-2 flex flex-col gap-3 border-t border-hairline pt-6">
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink">
                     7.2 — Prohibited use cases
                   </h3>
                   <fieldset className="min-w-0 border-0 p-0">
@@ -1610,8 +1610,8 @@ export default function GeneratePage() {
                             key={category}
                             className={`flex cursor-pointer items-start gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal leading-snug transition-colors ${
                               checked
-                                ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                                : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                                ? "border-ink bg-bg text-ink"
+                                : "border-hairline bg-surface text-muted hover:border-dim"
                             }`}
                           >
                             <input
@@ -1646,8 +1646,8 @@ export default function GeneratePage() {
                 </section>
 
                 {/* 7.3 High-risk classification */}
-                <section className="mt-2 flex flex-col gap-3 border-t border-[#1A1A1A] pt-6">
-                  <h3 className={`${mono} text-[11px] uppercase tracking-[0.12em] text-[#FFFFFF]`}>
+                <section className="mt-2 flex flex-col gap-3 border-t border-hairline pt-6">
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink">
                     7.3 — High-risk classification (Annex III)
                   </h3>
                   <fieldset className="min-w-0 border-0 p-0">
@@ -1661,7 +1661,7 @@ export default function GeneratePage() {
                       ].map(({ value, label }) => (
                         <label
                           key={String(value)}
-                          className="flex cursor-pointer items-center gap-2.5 text-[14px] font-normal text-[#FFFFFF]"
+                          className="flex cursor-pointer items-center gap-2.5 text-[14px] font-normal text-ink"
                         >
                           <input
                             type="radio"
@@ -1693,8 +1693,8 @@ export default function GeneratePage() {
                                 key={category}
                                 className={`flex cursor-pointer items-start gap-2.5 rounded-none border px-[14px] py-[10px] text-[14px] font-normal leading-snug transition-colors ${
                                   checked
-                                    ? "border-[#FFFFFF] bg-[#1A1A1A] text-[#FFFFFF]"
-                                    : "border-[#222222] bg-[#0A0A0A] text-[#888888] hover:border-[#444444]"
+                                    ? "border-ink bg-bg text-ink"
+                                    : "border-hairline bg-surface text-muted hover:border-dim"
                                 }`}
                               >
                                 <input
@@ -1711,7 +1711,7 @@ export default function GeneratePage() {
                       </fieldset>
 
                       {form.highRiskClassification.applicableCategories.length === 0 && (
-                        <p className={`${mono} text-[11px] uppercase tracking-[0.08em] text-[#666666]`}>
+                        <p className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted">
                           Select at least one Annex III category to provide justifications.
                         </p>
                       )}
@@ -1723,7 +1723,7 @@ export default function GeneratePage() {
                             <div key={category}>
                               <label htmlFor={id} className={labelClass}>
                                 Justification — {category}{" "}
-                                <span className="text-[#FFFFFF]">*</span>
+                                <span className="text-ink">*</span>
                               </label>
                               <textarea
                                 id={id}
@@ -1749,7 +1749,7 @@ export default function GeneratePage() {
                     <div>
                       <label htmlFor="notHighRiskJustification" className={labelClass}>
                         Justification that the model is not high-risk{" "}
-                        <span className="text-[#FFFFFF]">*</span>
+                        <span className="text-ink">*</span>
                       </label>
                       <textarea
                         id="notHighRiskJustification"
@@ -1776,25 +1776,25 @@ export default function GeneratePage() {
                   <h2 className={sectionTitleClass}>Annex XI output</h2>
                 </div>
                 {documentReference && (
-                  <p className={`${mono} text-[10px] uppercase tracking-[0.12em] text-[#666666]`}>
+                  <p className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-muted">
                     Document reference · {documentReference}
                   </p>
                 )}
                 <div
-                  className="juris-doc max-h-[600px] overflow-y-auto border border-[#222222] bg-[#111111] p-6"
+                  className="juris-doc max-h-[600px] overflow-y-auto rounded-lg border border-hairline bg-surface p-6"
                   dangerouslySetInnerHTML={{ __html: renderedHtml }}
                 />
                 <button
                   type="button"
                   onClick={handleDownloadPdf}
                   disabled={downloadingPdf || !generatedDocument}
-                  className="w-full rounded-none bg-[#FFFFFF] px-5 py-3 text-[13px] font-medium uppercase tracking-[0.08em] text-[#000000] transition-colors hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-[7px] bg-ink px-5 py-3 text-[13px] font-medium uppercase tracking-[0.08em] text-bg transition-colors hover:bg-[#3a342c] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {downloadingPdf ? "Preparing PDF..." : "Download as PDF"}
                 </button>
                 {pdfError && (
                   <p
-                    className={`${mono} text-[11px] uppercase tracking-[0.08em] text-[#FFFFFF]`}
+                    className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-ink"
                     role="alert"
                   >
                     {pdfError}
@@ -1816,7 +1816,7 @@ export default function GeneratePage() {
                   setStep((s) => Math.max(1, s - 1));
                 }}
                 disabled={step === 1 || (step === FORM_STEP_COUNT && generateLoading)}
-                className={`${mono} rounded-none border border-[#333333] bg-transparent px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#666666] transition-colors hover:border-[#666666] hover:text-[#FFFFFF] disabled:cursor-not-allowed disabled:opacity-40`}
+                className="font-sans rounded-[7px] border border-hairline bg-transparent px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-muted transition-colors hover:border-dim hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Back
               </button>
@@ -1825,7 +1825,7 @@ export default function GeneratePage() {
                   type="button"
                   onClick={() => setStep((s) => Math.min(FORM_STEP_COUNT, s + 1))}
                   disabled={generateLoading}
-                  className={`${mono} rounded-none bg-[#FFFFFF] px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#000000] transition-colors hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-50`}
+                  className="font-sans rounded-[7px] bg-ink px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-bg transition-colors hover:bg-[#3a342c] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Next →
                 </button>
@@ -1833,7 +1833,7 @@ export default function GeneratePage() {
                 <button
                   type="submit"
                   disabled={generateLoading}
-                  className={`${mono} rounded-none bg-[#FFFFFF] px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-[#000000] transition-colors hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-70`}
+                  className="font-sans rounded-[7px] bg-ink px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.12em] text-bg transition-colors hover:bg-[#3a342c] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {generateLoading ? generateStatus : "Submit →"}
                 </button>
@@ -1841,7 +1841,7 @@ export default function GeneratePage() {
             </div>
             {generateError && step === FORM_STEP_COUNT && (
               <p
-                className={`${mono} mt-3 text-[11px] uppercase tracking-[0.08em] text-[#FFFFFF]`}
+                className="font-sans mt-3 text-[11px] font-medium uppercase tracking-[0.08em] text-ink"
                 role="alert"
               >
                 {generateError}
