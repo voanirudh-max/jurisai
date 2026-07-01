@@ -1,21 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-const TARGET_MS = new Date(2026, 7, 2, 0, 0, 0, 0).getTime();
-
-function countdownParts(nowMs) {
-  const diff = Math.max(0, TARGET_MS - nowMs);
-  const total = Math.floor(diff / 1000);
-  return {
-    days: Math.floor(total / 86400),
-    hours: Math.floor((total % 86400) / 3600),
-    minutes: Math.floor((total % 3600) / 60),
-    seconds: total % 60,
-    expired: nowMs >= TARGET_MS,
-  };
-}
+import { useState } from "react";
 
 const FLOP_TIERS = {
   under: "Under 10²³ FLOPs",
@@ -165,8 +151,6 @@ function HeroDocumentPreview() {
 }
 
 export default function Home() {
-  const [now, setNow] = useState(() => Date.now());
-
   const [riskQ1, setRiskQ1] = useState(null);
   const [riskQ2, setRiskQ2] = useState(null);
   const [riskQ3, setRiskQ3] = useState(null);
@@ -177,28 +161,6 @@ export default function Home() {
   const [faqOpen, setFaqOpen] = useState(() =>
     Object.fromEntries(FAQ_ITEMS.map((_, i) => [String(i), false])),
   );
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  const { days, hours, minutes, seconds, expired } = countdownParts(now);
-  const pad = (n) => String(n).padStart(2, "0");
-
-  const timeUnits = expired
-    ? [
-        { label: "Days", value: "0" },
-        { label: "Hours", value: "00" },
-        { label: "Minutes", value: "00" },
-        { label: "Seconds", value: "00" },
-      ]
-    : [
-        { label: "Days", value: String(days) },
-        { label: "Hours", value: pad(hours) },
-        { label: "Minutes", value: pad(minutes) },
-        { label: "Seconds", value: pad(seconds) },
-      ];
 
   const flopsAbove10_23 =
     riskQ2 === "band23" || riskQ2 === "band24" || riskQ2 === "above25";
@@ -378,34 +340,24 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Countdown */}
+        {/* Enforcement status */}
         <section className="border-y border-hairline bg-bg px-6 py-12 sm:px-12">
           <div className="mx-auto max-w-[1100px] border border-hairline bg-surface px-6 py-10 sm:px-12">
-            <p className={labelClass + " text-center"}>
-              Time remaining until high-risk AI system deadline
-            </p>
+            <h2 className="font-serif text-center text-[24px] font-medium leading-tight tracking-tight text-ink sm:text-[32px]">
+              GPAI obligations are not coming. They&apos;re here.
+            </h2>
 
-            <div
-              className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4"
-              aria-live="polite"
-            >
-              {timeUnits.map((u) => (
-                <div
-                  key={u.label}
-                  className="flex flex-col items-center justify-center border border-hairline bg-bg px-4 py-5 sm:px-6"
-                >
-                  <span className="font-serif text-[40px] font-semibold leading-none text-ink sm:text-[52px]">
-                    {u.value}
-                  </span>
-                  <span className="font-sans mt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-dim">
-                    {u.label}
-                  </span>
-                </div>
-              ))}
+            <div className="mt-8 space-y-3 text-center">
+              <p className="font-sans text-[12px] font-medium uppercase tracking-[0.1em] leading-relaxed text-ink sm:text-[13px]">
+                Articles 51–56 enforced since August 2, 2025
+              </p>
+              <p className="font-sans text-[12px] font-medium uppercase tracking-[0.1em] leading-relaxed text-muted sm:text-[13px]">
+                Non-compliance: up to 3% of global annual turnover or €15M, whichever is higher (Article 101)
+              </p>
             </div>
 
-            <p className="font-sans mt-8 text-center text-[11px] font-medium uppercase tracking-[0.08em] leading-relaxed text-muted sm:px-4">
-              GPAI obligations enforced since August 2, 2025 · High-risk provisions enforce August 2, 2026
+            <p className="font-sans mx-auto mt-8 max-w-[820px] text-center text-[10px] font-medium uppercase tracking-[0.08em] leading-relaxed text-dim sm:px-4">
+              High-risk system provisions deferred to December 2, 2027 under the May 2026 Digital Omnibus agreement — GPAI provider obligations were NOT delayed.
             </p>
           </div>
         </section>
@@ -731,7 +683,7 @@ export default function Home() {
               <tbody>
                 {[
                   ["Time to generate Annex XI documentation", "3–6 months with lawyers", "Under 10 minutes"],
-                  ["Cost", "€5,000–€20,000 legal fees", "€299 one-time"],
+                  ["Cost", "€5,000–€20,000 legal fees", "From €2,000/month per model"],
                   ["Regulation accuracy", "Depends on lawyer's AI Act knowledge", "Built on 50-node GPAI ontology"],
                   ["Article 53 coverage", "Partial — most lawyers miss sub-obligations", "Complete — all 4 Article 53(1) obligations"],
                   ["Update when model changes", "Pay lawyers again", "Regenerate in minutes"],
