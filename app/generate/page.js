@@ -380,7 +380,7 @@ const initialForm = {
     customDescription: "",
   },
   highRiskClassification: {
-    isHighRisk: false,
+    isHighRisk: null,
     applicableCategories: [],
     justifications: {},
     notHighRiskJustification: "",
@@ -529,18 +529,15 @@ export default function GeneratePage() {
   function setIsHighRisk(value) {
     setForm((prev) => ({
       ...prev,
-      highRiskClassification: value
-        ? {
-            ...prev.highRiskClassification,
-            isHighRisk: true,
-            notHighRiskJustification: "",
-          }
-        : {
-            ...prev.highRiskClassification,
-            isHighRisk: false,
-            applicableCategories: [],
-            justifications: {},
-          },
+      highRiskClassification: {
+        ...prev.highRiskClassification,
+        isHighRisk: value,
+        ...(value === true ? { notHighRiskJustification: "" } : {}),
+        ...(value !== true
+          ? { applicableCategories: [], justifications: {} }
+          : {}),
+        ...(value === null ? { notHighRiskJustification: "" } : {}),
+      },
     }));
   }
 
@@ -1063,7 +1060,7 @@ export default function GeneratePage() {
                           Authorised Representative
                         </h3>
                         <p className="mt-2 text-[13px] leading-[1.7] text-muted">
-                          Required for non-EU GPAI providers under Article 54.
+                          Article 54 may require an EU-established representative before a non-EU provider places a GPAI model on the Union market. Applicability can depend on exceptions; enter representative details only if a written mandate exists.
                         </p>
                       </div>
                       <div>
@@ -1648,14 +1645,15 @@ export default function GeneratePage() {
                 {/* 7.3 High-risk classification */}
                 <section className="mt-2 flex flex-col gap-3 border-t border-hairline pt-6">
                   <h3 className="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink">
-                    7.3 — High-risk classification (Annex III)
+                    7.3 — Annex III context for an integrated AI system
                   </h3>
                   <fieldset className="min-w-0 border-0 p-0">
                     <legend className={labelClass}>
-                      Does this model qualify as a high-risk AI system under Annex III?
+                      Is an AI system using this model intended for an Annex III high-risk use?
                     </legend>
                     <div className="mt-2 flex flex-wrap gap-5">
                       {[
+                        { value: null, label: "Not assessed" },
                         { value: true, label: "Yes" },
                         { value: false, label: "No" },
                       ].map(({ value, label }) => (
@@ -1676,11 +1674,11 @@ export default function GeneratePage() {
                     </div>
                   </fieldset>
 
-                  {form.highRiskClassification.isHighRisk ? (
+                  {form.highRiskClassification.isHighRisk === true ? (
                     <div className="flex flex-col gap-4">
                       <fieldset className="min-w-0 border-0 p-0">
                         <legend className={labelClass}>
-                          Applicable Annex III categories
+                        Applicable Annex III use categories for the AI system
                         </legend>
                         <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                           {ANNEX_III_CATEGORIES.map((category) => {
@@ -1745,10 +1743,10 @@ export default function GeneratePage() {
                         },
                       )}
                     </div>
-                  ) : (
+                  ) : form.highRiskClassification.isHighRisk === false ? (
                     <div>
                       <label htmlFor="notHighRiskJustification" className={labelClass}>
-                        Justification that the model is not high-risk{" "}
+                        Basis for the provider-reported answer{" "}
                         <span className="text-ink">*</span>
                       </label>
                       <textarea
@@ -1762,9 +1760,13 @@ export default function GeneratePage() {
                         onChange={(e) =>
                           setNotHighRiskJustification(e.target.value)
                         }
-                        placeholder="Explain why none of the Annex III categories apply: intended purpose, scope, target users, downstream use restrictions…"
+                        placeholder="Describe the intended purpose, users, and deployment context supporting the provider-reported answer…"
                       />
                     </div>
+                  ) : (
+                    <p className="text-[13px] leading-[1.7] text-muted">
+                      Choose “Not assessed” unless the provider has assessed the intended use. This section records context only; it does not classify the GPAI model or a downstream AI system.
+                    </p>
                   )}
                 </section>
               </div>
