@@ -17,11 +17,11 @@ const FAQ_ITEMS = [
   },
   {
     q: "What exactly is Annex XI and why do I need it?",
-    a: "Annex XI is the mandatory technical documentation format specified under Article 53(1)(a) of Regulation (EU) 2024/1689. It covers 9 categories including model architecture, training process, FLOPs estimate, data provenance, and evaluation results. Every GPAI model provider must produce this documentation before placing their model on the EU market.",
+    a: "Annex XI sets out technical information for GPAI model documentation under Article 53(1)(a) of Regulation (EU) 2024/1689. JurisAI uses the information you provide to create a draft. Your team must verify the facts, applicable obligations, and final document with qualified counsel.",
   },
   {
     q: "Is a model card or README the same as Annex XI documentation?",
-    a: "No. A model card covers roughly 2 of the 9 mandatory Annex XI categories. Annex XI requires specific legal framing around IP rights, training data provenance, FLOPs measurement, and known limitations that standard model cards do not include. JurisAI generates documentation that specifically satisfies all 9 Annex XI mandatory fields.",
+    a: "A model card and Annex XI documentation serve different purposes. JurisAI creates an Annex XI draft from your inputs; it does not determine that the draft satisfies every legal obligation. Your legal team should review and complete it.",
   },
   {
     q: "What's the difference between a GPAI provider and a GPAI deployer?",
@@ -33,7 +33,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Does JurisAI replace a lawyer?",
-    a: "No. JurisAI generates the structured documentation draft that your legal team reviews and certifies. The same way tax software produces a return that an accountant signs off on — JurisAI produces the artifact, your legal team provides the authority. This reduces legal costs from €5,000–€20,000 to a fraction of that.",
+    a: "No. JurisAI generates an Annex XI draft from the information you provide. It does not provide legal advice or certify compliance. Your lawyer should verify and correct the document before you rely on or submit it.",
   },
 ];
 
@@ -309,9 +309,10 @@ export default function Home() {
               </h1>
 
               <p className="juris-hero-sub mt-6 max-w-[31em] text-[15px] leading-[1.6] text-muted">
-                JurisAI generates your complete Article 53 documentation package —
-                Annex XI, Annex XII, copyright compliance policy, and training data
-                summary — in under 10 minutes.
+                JurisAI turns your model information into an AI-generated Annex XI
+                technical documentation draft. Your legal team verifies and corrects
+                it before you rely on or submit it. Other Article 53 deliverables are
+                outside this generator.
               </p>
 
               <div className="juris-hero-cta mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -373,21 +374,21 @@ export default function Home() {
             {[
               {
                 ref: "Art. 53(1)(a)",
-                title: "Annex XI technical documentation",
-                desc: "9-section technical disclosure covering architecture, training process, FLOPs, data provenance, and evaluation results.",
-                footnote: "Required before market placement",
+                title: "Annex XI draft",
+                desc: "A structured technical documentation draft assembled from the information you enter.",
+                footnote: "Provider facts require verification",
               },
               {
-                ref: "Art. 53(1)(b)",
-                title: "Annex XII downstream package",
-                desc: "Capabilities, limitations, and intended purpose documentation for every provider building on your GPAI model.",
-                footnote: "Required for all downstream providers",
+                ref: "INPUT STATUS",
+                title: "Open items made visible",
+                desc: "Information not supplied in the intake should remain marked for completion or assessment.",
+                footnote: "No legal conclusion from missing data",
               },
               {
-                ref: "Art. 101",
-                title: "Penalty exposure assessment",
-                desc: "Non-compliance fines up to 3% of global annual turnover. Identify your exposure before the AI Office does.",
-                footnote: "Enforced now",
+                ref: "LEGAL REVIEW",
+                title: "PDF for counsel review",
+                desc: "Export the draft so your legal team can verify, correct, and complete it for your situation.",
+                footnote: "Not certified or submission-ready",
               },
             ].map((c) => (
               <article
@@ -437,8 +438,8 @@ export default function Home() {
                     desc: "Structured, regulation-aligned output.",
                   },
                   {
-                    title: "Download your compliance pack",
-                    desc: "PDF ready for AI Office submission.",
+                    title: "Download your Annex XI draft",
+                    desc: "Export an Annex XI draft for legal review; it is not submission-ready.",
                   },
                 ].map((step, i) => (
                   <div
@@ -682,14 +683,13 @@ export default function Home() {
               </thead>
               <tbody>
                 {[
-                  ["Time to generate Annex XI documentation", "3–6 months with lawyers", "Under 10 minutes"],
-                  ["Cost", "€5,000–€20,000 legal fees", "From €2,000/month per model"],
-                  ["Regulation accuracy", "Depends on lawyer's AI Act knowledge", "Built on 50-node GPAI ontology"],
-                  ["Article 53 coverage", "Partial — most lawyers miss sub-obligations", "Complete — all 4 Article 53(1) obligations"],
-                  ["Update when model changes", "Pay lawyers again", "Regenerate in minutes"],
-                  ["Annex XI + XII bundle", "Two separate engagements", "Included in one flow"],
-                  ["FLOPs-based systemic risk assessment", "Rarely included", "Built into the generator"],
-                  ["Ready for AI Office submission", "After lengthy review cycles", "Download and submit"],
+                  ["Document output", "Your team's existing materials", "AI-generated Annex XI draft from your inputs"],
+                  ["Missing information", "Your team identifies what remains", "Items not supplied or assessed are flagged for completion"],
+                  ["Legal conclusions", "Your counsel assesses your situation", "Not determined or certified by the generator"],
+                  ["Review and correction", "Your legal team", "Your legal team verifies and corrects the draft"],
+                  ["Other Article 53 deliverables", "Plan separately as needed", "Not included in this generator"],
+                  ["Pricing", "Varies by provider and scope", "Package scope and price agreed separately"],
+                  ["Submission", "Your team decides after review", "Draft is not submission-ready"],
                 ].map((row, idx) => (
                   <tr
                     key={row[0]}
